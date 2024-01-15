@@ -1,0 +1,2537 @@
+      38820 ARCHIVELOG                    1     2.19G      2.19G
+      38830 ARCHIVELOG                    1     4.00G      4.00G
+      38842 ARCHIVELOG                    1    31.21G     31.21G
+      38852 ARCHIVELOG                    1    35.16G     35.16G
+      38862 ARCHIVELOG                    1    34.13G     34.14G
+      38872 ARCHIVELOG                    1    33.76G     33.76G
+      38882 ARCHIVELOG                    1    31.05G     31.05G
+      38895 ARCHIVELOG                    1     5.99G      5.99G
+      38905 ARCHIVELOG                    1    65.14G     65.14G
+      38915 ARCHIVELOG                    1    14.09G     14.09G
+ 2.19+ 4.00+31.21+35.16+34.13+33.76+31.05+ 5.99+65.14+14.09
+
+CREATE INDEX "GGS"."MK_IMPORTCUST_TMP_PHONE_NO" ON "DBMARKETADM"."MK_IMPORTCUST_TMP" ("PHONE_NO")  parallel 32;
+yum install net-tools
+
+V$RMAN_BACKUP_JOB_DETAILS展示了rman备份的相关细节。
+比如，rman备份持续时间、rman备份的执行次数、每一次rman备份工作的状态（failed or completed and so on），
+每次rman备份的起始时间等等。
+
+SQL> desc sys.v$rman_backup_job_details
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ SESSION_KEY                                        NUMBER
+ SESSION_RECID                                      NUMBER
+ SESSION_STAMP                                      NUMBER
+ COMMAND_ID                                         VARCHAR2(33)
+ START_TIME                                         DATE
+ END_TIME                                           DATE
+ INPUT_BYTES                                        NUMBER
+ OUTPUT_BYTES                                       NUMBER
+ STATUS_WEIGHT                                      NUMBER
+ OPTIMIZED_WEIGHT                                   NUMBER
+ OBJECT_TYPE_WEIGHT                                 NUMBER
+ OUTPUT_DEVICE_TYPE                                 VARCHAR2(17)
+ AUTOBACKUP_COUNT                                   NUMBER
+ BACKED_BY_OSB                                      VARCHAR2(3)
+ AUTOBACKUP_DONE                                    VARCHAR2(3)
+ STATUS                                             VARCHAR2(23)
+ INPUT_TYPE                                         VARCHAR2(13)
+ OPTIMIZED                                          VARCHAR2(3)
+ ELAPSED_SECONDS                                    NUMBER
+ COMPRESSION_RATIO                                  NUMBER
+ INPUT_BYTES_PER_SEC                                NUMBER
+ OUTPUT_BYTES_PER_SEC                               NUMBER
+ INPUT_BYTES_DISPLAY                                VARCHAR2(4000)
+ OUTPUT_BYTES_DISPLAY                               VARCHAR2(4000)
+ INPUT_BYTES_PER_SEC_DISPLAY                        VARCHAR2(4000)
+ OUTPUT_BYTES_PER_SEC_DISPLAY                       VARCHAR2(4000)
+ TIME_TAKEN_DISPLAY                                 VARCHAR2(4000)
+
+
+几个重要的列状态值：
+INPUT_TYPE：备份的方式，比如全库备份、数据库增量备份、归档备份等等
+DB FULL
+RECVR AREA
+DB INCR
+DATAFILE FULL
+DATAFILE INCR
+ARCHIVELOG
+CONTROLFILE
+SPFILE
+
+STATUS:rman备份job的结果状态，如正在备份但是有警告（RUNNING WITH WARNINGS），正常完成（COMPLETED）、完成但是有错误（COMPLETED WITH ERRORS）等
+RUNNING WITH WARNINGS
+RUNNING WITH ERRORS
+COMPLETED
+COMPLETED WITH WARNINGS
+COMPLETED WITH ERRORS
+FAILED
+
+
+
+几个常用SQL
+1.查询过去和现在RMAN备份工作的详细情况
+set pages 100 lin 150
+ col START_TIME for a20
+ col END_TIME for a20
+COL STATUS FORMAT a30
+COL hours    FORMAT 999.999
+SELECT SESSION_KEY, INPUT_TYPE, STATUS,
+       TO_CHAR(START_TIME,'yyyy-mm-dd hh24:mi') start_time,
+       TO_CHAR(END_TIME,'yyyy-mm-dd hh24:mi')   end_time,
+       ELAPSED_SECONDS/3600                   hours
+FROM V$RMAN_BACKUP_JOB_DETAILS
+ORDER BY SESSION_KEY ;
+
+SESSION_KEY INPUT_TYPE    STATUS    START_TIME       END_TIME            HOURS
+----------- ------------- --------- ---------------- ---------------- --------
+          2 DB FULL       COMPLETED 2013-11-05 09:42 2013-11-05 09:43     .018
+          4 DB FULL       FAILED    2013-11-05 09:49 2013-11-05 09:49     .001
+
+2.RMAN备份的速度，in_sec表示每秒的input速度，output表示每秒的output速度
+COL in_sec FORMAT a10
+COL out_sec FORMAT a10
+COL TIME_TAKEN_DISPLAY FORMAT a10
+SELECT SESSION_KEY,
+       OPTIMIZED,
+       COMPRESSION_RATIO,
+       INPUT_BYTES_PER_SEC_DISPLAY in_sec,
+       OUTPUT_BYTES_PER_SEC_DISPLAY out_sec,
+       TIME_TAKEN_DISPLAY
+FROM   V$RMAN_BACKUP_JOB_DETAILS
+ORDER BY SESSION_KEY;         
+
+SESSION_KEY OPT COMPRESSION_RATIO IN_SEC     OUT_SEC    TIME_TAKEN
+----------- --- ----------------- ---------- ---------- ----------
+          2 NO         1.19753391    18.66M     15.58M  00:01:03
+          4 NO         1.99215686  1016.00K    510.00K  00:00:04
+
+
+3.显示备份的尺寸。OUT_SIZE表示备份出的尺寸，IN_SIZE表示输入的数据总大小。
+COL in_size  FORMAT a10
+COL out_size FORMAT a10
+SELECT SESSION_KEY,
+       INPUT_TYPE,
+       COMPRESSION_RATIO,
+       INPUT_BYTES_DISPLAY in_size,
+       OUTPUT_BYTES_DISPLAY out_size
+FROM   V$RMAN_BACKUP_JOB_DETAILS
+ORDER BY SESSION_KEY;
+
+SESSION_KEY INPUT_TYPE    COMPRESSION_RATIO IN_SIZE    OUT_SIZE
+----------- ------------- ----------------- ---------- ----------
+          2 DB FULL              1.19753391     1.15G    981.44M
+          4 DB FULL              1.99215686     3.97M      1.99M
+          
+COL in_size  FORMAT a10
+COL out_size FORMAT a10
+SELECT SESSION_KEY,
+       INPUT_TYPE,
+       COMPRESSION_RATIO,
+       INPUT_BYTES_DISPLAY in_size,
+       OUTPUT_BYTES_DISPLAY out_size
+FROM   V$RMAN_BACKUP_JOB_DETAILS where INPUT_TYPE='DB FULL'
+ORDER BY SESSION_KEY;
+
+
+在oracle 数据库很多的情况下，可以利用V$RMAN_BACKUP_JOB_DETAILS+DB_LINK的方式实现集中监控所有数据库的Rman备份情况，
+而无需登录到数据库所在主机查看备份日志，减轻了DBA的工作量。       
+
+监控状态
+send EXT_CRMA,status
+
+----gg更改启动点
+alter extract EXT_CRMB,begin now
+start EXT_CRMB
+
+add ext ext_chg, tranlog, begin now,threads 2
+ADD EXTTRAIL ./dirdat/chg/sf, EXTRACT ext_chg, megabytes 100
+start ext ext_chg
+
+add extract dpp_chg , exttrailsource  ./dirdat/chg/sf
+add rmttrail  ./dirdat/chg/tf, ext dpp_chg, megabytes 100
+
+alter DPP_JS, extseqno 30099,extrba 0
+start EXT_JS
+start DPP_JS
+
+--OGG01496
+alter DPP_ZX etrollover
+
+
+--给系统用户赋crontab权限
+cd /usr/adm/cron
+vi cron.allow添加用户
+
+--给数据库用户赋目录读写权限
+GRANT READ,WRITE ON DIRECTORY INFDATAP_PMOS TO PMOS;
+
+--sqlplus格式化输出
+--计时
+set timing on
+--显示时间
+set time on
+--设置网页格式
+SET MARKUP HTML ON ENTMAP ON SPOOL ON PRE OFF
+set markup HTML ON BODY "" TABLE "border='1' width='800%' align='center' summary='Script output'" SPOOL ON ENTMAP ON PRE OFF
+
+---resize表空间
+--生成resize脚本
+set pages 100 lin 120
+select 'ALTER DATABASE DATAFILE ''' ||FILE_NAME||''' resize 1024M;' from dba_data_files where TABLESPACE_NAME='ACCOUNT07_IDX';
+
+ALTER DATABASE DATAFILE '/oradata02/waccta/account07_idx_15.dbf' resize 1024M;
+
+
+add数据文件
+alter tablespace TBS_MONITOR add datafile '/data/oradata/dbmonitor/tbs_monitor03.dbf'  size 30G autoextend off;
+alter tablespace ACCOUNT08 add datafile '/oradata/bossa/data02/ACCOUNT08_10.dbf'  size 8192M autoextend off;
+
+--12c表空间
+
+
+--查询表空间的使用率(MB)
+set lin 200 pagesize 1000
+select b.tablespace_name,round(sum(b.bytes)/1024/1024,0) sum_MB, round(sum(nvl(a.bytes,0))/1024/1024,0) free_MB,
+  round((sum(b.bytes)-sum(nvl(a.bytes,0)))/sum(b.bytes),4)*100 use_precent
+from (select tablespace_name,file_id,sum(bytes) bytes from dba_free_space group by tablespace_name,file_id ) a,
+     dba_data_files b
+where a.file_id(+)=b.file_id and a.tablespace_name(+)=b.tablespace_name
+     and b.tablespace_name like '%%'
+group by b.tablespace_name
+order by 4;
+
+--指定表空间数据文件
+set linesize 120
+col name format a60
+col file# format 9999
+col size_mb format 99999
+alter session set cursor_sharing=force;
+select /* SHSNC */ /*+ RULE */
+  f.file#, F.NAME, TRUNC(f.BYTES/1048576,2) SIZE_MB , f.CREATION_TIME, status
+FROM V$DATAFILE F,V$TABLESPACE T
+WHERE F.ts#=T.ts# AND T.NAME = NVL(UPPER('&tablespace'),'SYSTEM')
+order by f.CREATION_TIME;
+
+--DG使用率
+select name,total_mb,free_mb from v$asm_diskgroup;
+
+alter database  datafile '+DATADG2/masyd/tbs_masyd_data_02.bdf' resize  32760M;
+
+alter tablespace GD_ST_DATA  add datafile '+DATA' size 16384m autoextend off;
+
+
+
+--unix环境切除分号
+echo "Z;A"|sed 's/\;//g'
+
+
+--gunzip解压gz文件
+
+
+---linux的的参数ne
+if [ $# -ne 20 ]
+then
+        Usage
+        exit 1
+fi
+$#表示提供到shell脚本或者函数的参数总数；
+$?是shell变量,表示"最后一次执行命令"的退出状态.0为成功,非0为失败.
+-ne 不等于
+
+ksh参数含义
+-d file   文件是目录吗？
+-f file    文件是规则文件吗？
+-r file    运行脚本的用户是否有读权限
+-w file   运行脚本的用户是否有写权限
+-x file    运行脚本的用户是否有执行权限
+-s file    文件的长度是否大于0
+例：ksh main_gg_auto.sh -f FILE_33.txt && date
+
+
+getopts用法
+如果选项字符串中的字符后面带有“:”（冒号），则预期此选项将带有参数。当选项需要选项参数时，getopts 命令就将其置于变量 OPTARG 中。
+
+当查找到选项字符串所不包含的选项字符，或者查找到的选项没有所需的选项参数时：
+
+如果选项字符串不以:（冒号）开头，名称 将会被设置为 ?（问号）字符,OPTARG. 将被取消设置，并且诊断消息将被写入到标准错误中。
+这种情况被认为是在将参数传递给所调用的应用程序的过程中所检测到的错误，而不是在处理 getopts 命令的过程中所发生的错误；
+如上所述，写入诊断消息，但退出状态将变为零。
+
+如果选项字符串以 :（冒号）开头，名称 将被设为 ? （问号）字符，这是对未知的选项来说的，或者为缺少的所需选项设为:（冒号）字符，
+OPTARG 将被设置为已查找到的选项字符，并且 标准错误中将不写入任何输出。
+以下任何字符都可以识别选项结尾：特殊选项- -,查找到不以-,或者+为开头的参数,或者遇到错误。
+
+当遇到选项结尾时：
+getopts 命令将退出运行,并且返回值大于零，OPTARG 将被设置为第一个非选项参数索引，在这种情况下，如果第一个 - - 参数之前未出现其它非选项参数，将认为它是选项参数，或者如果没有非选项参数，设置为值 $#+1，名称将被设置为? （问号）字符，
+
+参数
+下列 getopts 命令规定 a、b 和 c 为有效选项,并且选项 a 和 c 带有参数：
+getopts a:bc: OPT
+
+下列 getopts 命令指定 a、b 以及 c 为有效选项, 并且选项 a 和 b 带有参数，而且 getopts 在命令行遇到为定义的选项时，
+它将 OPT 的值设置为 ?：
+getopts :a:b:c OPT
+
+--准生产账号密码修改
+alter user DBACCOPR identified by DBACCOPR;
+alter user DBACCADM identified by DBACCADM;
+
+sqlplus dbmon/d_BM540C!c3@10.153.179.15:1521/spmsdb
+
+--表空间检查
+col sid for a10
+col ip for a20
+col cn_name for a30
+col tablespace_name for a30
+set lines 300
+set pages 1000
+alter session set nls_date_format='yyyy-mm-dd hh24:mi:ss';
+select a.sid,a.ip,a.cn_name,a.tablespace_name,a.used_rate,a.logtime
+from dbmon.snc_tsmon_tsinfo a
+where a.used_rate >95 and a.logtime >(sysdate-0.5) and a.ip not in ('10.153.178.28','10.153.190.150') and a.TABLESPACE_NAME not like 'UNDO%' order by a.used_rate desc;
+
+
+--刷新超时工单
+update uitsm3.itsm_task_stat_1112 t
+   set t.fld_inc_alarmdischargetime = t.fld_inc_deadline,   
+       t.fld_inc_isalarmdisovertime = '2'
+where t.task_create_by  in ( 'caogw','34522492','dwxtb081')
+   and t.task_create_time > trunc(sysdate-8)
+   and t.task_origin = 'TOPTEA'
+   and t.fld_inc_isalarmdisovertime = '1' ;
+
+--刷提交超时工单：
+update uitsm3.itsm_task_stat_1112 t
+   set t.task_update_time = t.fld_inc_deadline,
+       t.fld_inc_iscloseovertime = '2'       
+where t.task_create_by in ( 'caogw','34522492','dwxtb081')
+   and t.task_create_time > trunc(sysdate-8)
+   and t.task_origin = 'TOPTEA'
+   and t.fld_inc_iscloseovertime = '1' ;
+commit;
+
+----工作量填写
+dongyj  、 zhanghui01 、 dingyuan 、 zhangyp ?? hujie01 、 zhanghong 、 wangyb 、 caogw 、 zhangfeng 、
+zhanggp、 longxy 、 zhuss 、 yangll 、 yangcz01 、qiuhy 、 id367 、wangtao01 、 zhangnina02 、yuanwx
+
+http://10.153.195.92:8080/rdmp/rdmp/login.jsp
+dongyj 、 dingyuan 、 zhangyp 、 hujie01 、 zhanghong 、 wangyb 、 zhangfeng 、 zhanggp 、 zhuss
+任务名称：
+安徽移动2014年ORACLE数据库中间件第三方驻场服务合同
+工作内容：
+数据库、中间件维护优化
+
+zhuss
+安徽移动工作维护工作报告整理
+
+zhanghui01 、 longxy 、 caogw 、 yangll
+任务名称：
+2014年数据治理优化服务
+工作内容：
+2014数据治理优化项目，及数据清理
+
+----监控主机
+10.243.2.187
+oracle/Jlzt!123
+crm/crm201303
+
+新增2个vpn，@彬彬 把之前changyl的vpn汇总下，重新发出来。
+地址：https://120.209.204.199
+账号1：zhangyp
+口令：password@2 + 短信验证码
+
+账号2：hujie
+口令：password@2 + 短信验证码
+
+--bomc帐号
+http://bomc.ah.amcc/cas/supperLogin.jsp?pwd=ahbomc&user=caogw
+http://bomc.ah.amcc/cas/supperLogin.jsp?pwd=ahbomc&user=dwxtb081
+
+bomc新链接：
+http://bomc.ah.amcc/cas/supperLogin.jsp?pwd=ahbomc&user=34522492
+
+----bomc的root
+http://bomc.ah.amcc/cas/supperLogin.jsp?user=root&pwd=root123
+
+---解锁账号
+select account_status from dba_users where username='SHIWEI';
+
+alter user SHIWEI identified by  shiwei_987;
+alter user SHIWEI account unlock;
+
+conn SHIWEI/shiwei_987
+
+-----创建账号-----
+select username from dba_users;
+select username,DEFAULT_TABLESPACE,created from dba_users where username ='ZHOUW' ;
+select dbms_metadata.get_ddl( 'USER','GELEI1') from dual;
+select grantee,privilege from dba_sys_privs where grantee='OA_EHR' order by privilege;
+select granted_role from dba_role_privs where grantee=upper('OA_EHR');
+select OWNER,TABLE_NAME,PRIVILEGE from dba_tab_privs where GRANTEE='OA_EHR';
+
+
+grant create table to shenff;
+grant UNLIMITED TABLESPACE to shenff;
+
+----组合查数
+select owner,object_name,object_type,status
+from dba_objects
+where (owner,object_name) in (select owner,table_name from ogg.celue_1501)  and object_type not like'%PARTITION' and object_type<>'INDEX' and object_type<>'LOB';
+
+sys/C!1a#2o_3
+
+--view设置
+set ic
+set nu
+
+
+--测试环境登录
+
+以后30网段测试环境的工单可从10.243.124.6 由mayy/xmg1313! 登陆，切 root /Ags&3xtm 、Cnm18&da 在切oracle /oracle10
+跳转机IP：10.243.124.6
+用户：changyulong
+密码：changyulong!123
+
+账号： mayy  口令: sbpj131!
+账号： root  口令: khfca11#
+
+
+新结算主机root登录
+cloud/cloud1234!
+su - root
+root!2013
+
+5t6y#89kL
+
+统一门户
+os.ah.cmcc
+34522492/password1
+
+--system
+system/C!1a#2o_3
+
+
+http://10.153.237.249/download/
+
+ps -ef | grep 'archmon/ftp_arch/ftp_arch' | grep -v grep | awk '{print $2}' | xargs kill -9
+
+--清理/oracle目录
+--使用find . -name "*trc" -size +10000000c 来查询大于10M的trc文件
+find .  -size +1000000c
+清理trc文件
+ls -l | grep "tr[cm]" | awk '{print "> " $9}' > clearxx.sh
+查看目录
+ls -F|grep /$
+find . -type d
+
+-----清理trc文件
+ls -l | grep "tr[cm]" | awk '{if($6=="Mar"&&$7=="16"){print "> " $9}}' > xxxx.sh
+
+ls -l | grep "tr[cm]" | awk '{print "> " $9}' > clear.sh
+
+
+----最后的ddl操作时间
+SELECT TO_CHAR(LAST_DDL_TIME,'YYYY-MM-DD HH24:MI:SS') FROM DBA_OBJECTS WHERE OBJECT_NAME='SYS_J_OPLOG';
+
+--分区表的碎片分析
+col USED% for 9999
+col table_name for a25
+col segment_name for a25
+col PCT_FREE for 9999
+select table_owner,
+       table_name,
+       PARTITION_NAME,
+       round(avg_row_len*num_rows*100/((100-pct_free)*8192)) need_blocks,
+       blocks ALLOC_BLOCKS,
+       round(avg_row_len*num_rows*100*8/((100-pct_free)*8192*1024)) "NEED(MB)",
+       round(blocks*8/1024) "ALLOC(MB)",
+       round(avg_row_len*num_rows*10000/((100-pct_free)*8192*blocks)) "USED%",
+       pct_free,
+       to_char(last_analyzed,'yyyymmdd hh24:mi:ss') analyzed,
+       num_rows
+  from dba_tab_partitions
+where table_owner not like 'UQRY_%'
+   and table_owner not in ('SYS','SYSTEM')
+   and blocks>3000
+   and round(avg_row_len*num_rows*10000/((100-pct_free)*8192*blocks)) < 70;
+
+
+--普通表碎片分析,高水位
+select owner,
+       table_name,
+       --(select comments from dba_tab_comments where owner=a.owner and table_name=a.table_name),
+       round(avg_row_len * num_rows * 100 / ((100 - pct_free) * 8192)) need_blocks,
+       blocks ALLOC_BLOCKS,
+       round(avg_row_len * num_rows * 100 * 8 /
+             ((100 - pct_free) * 8192 * 1024)) "NEED(MB)",
+       round(blocks * 8 / 1024) "ALLOC(MB)",
+       round(avg_row_len * num_rows * 10000 /
+             ((100 - pct_free) * 8192 * blocks)) "USED%",
+       pct_free,
+       to_char(last_analyzed, 'yyyymmdd hh24:mi:ss') analyzed,
+       num_rows,
+       partitioned
+  from dba_tables a
+where owner not like 'UQRY_%'
+   and owner not in ('SYS', 'SYSTEM')
+   and blocks > 3000
+   and partitioned = 'NO'
+   and round(avg_row_len * num_rows * 10000 /
+             ((100 - pct_free) * 8192 * blocks)) < 70
+order by 1, 8, 7;
+
+
+
+
+/*  高可用探测
+ 因BOSS与管信路由不通所以分别设置2台探测主机进行探测.
+1.探测主机环境及范围
+1.1 数据库sqlplus登录探测
+探测主机    探测范围    登录探测shell    日志输出
+10.147.140.26    NGBOSS    /home/oracle/monitor/hang_detect/hang_test.sh    /opt/oracle/hj.diag/ng.sqlplus-login.log
+10.153.246.81    NGBOSS/管信    /home/oracle/sncnet/hang_test.sh    /archive1/hj.diag/ng.sqlplus-login.log
+1.2 数据库sqlplus登录探测日志诊断
+1.2.1 NGBOSS日志: tail -100f /opt/oracle/hj.diag/ng.sqlplus-login.log
+[oracle@redhat6 hj.diag]$ tail -20f /opt/oracle/hj.diag/ng.sqlplus-login.log     << ----探测时间
+------2015-01-04/09:10:28-------
+dbmon/dbmon123@10.153.178.29:1521/linkage_flt                 << ----- 探测的数据库及service
+
+OPEN                       <<<<<<<<<------------------------   OPEN测试登录正常，其他
+                                                      任何非OPEN则登录测试异常，需要人为分析，一般为监听异常/归档满等故障
+------2015-01-04/09:10:30-------
+dbmon/dbmon123@10.153.178.29:1521/linkage_grp
+
+OPEN
+------2015-01-04/09:10:31-------
+dbmon/dbmon123@10.153.178.29:1521/linkage_lcfa
+
+OPEN
+------2015-01-04/09:10:32-------
+dbmon/dbmon123@10.153.178.29:1521/linkage_std
+
+OPEN
+------2015-01-04/09:10:33-------
+dbmon/dbmon123@10.153.178.29:1521/log_crm
+
+OPEN
+
+1.2.2 NGBOSS/管信日志:  tail -100f /archive1/hj.diag/ng.sqlplus-login.log
+------2015-01-04/09:22:12-------                                       << ----探测时间
+dbmon/dbmon123@10.243.0.133:1521/vmeeting              << ----探测的数据库及service
+
+OPEN                               <<<<<<<<<------------------------   OPEN测试登录正常，其他
+                                                      任何非OPEN则登录测试异常，需要人为分析，一般为监听异常/归档满等故障
+------2015-01-04/09:22:13-------
+dbmon/dbmon123@10.243.0.133:1521/xxfp
+
+OPEN
+------2015-01-04/09:22:14-------
+dbmon/dbmon123@10.243.0.133:1521/ycxk
+
+OPEN
+------2015-01-04/09:22:16-------
+dbmon/dbmon123@10.243.0.133:1521/ywzy
+
+OPEN
+------2015-01-04/09:22:17-------
+dbmon/dbmon123@10.153.177.70:1521/dictdb
+
+OPEN
+------2015-01-04/09:22:18-------
+dbmon/dbmon123@10.147.36.20:11501/AHPRD
+
+OPEN
+------2015-01-04/09:22:19-------
+dbmon/dbmon123@10.147.36.22:11601/AHNPRD
+
+OPEN
+1.3主机ping/traceroute探测
+探测主机    探测范围    登录探测shell    日志输出
+10.147.140.26    NGBOSS    /home/oracle/monitor/hang_detect/hang_ping.sh    /opt/oracle/hj.diag/ng.traceroute.log
+10.153.246.81    NGBOSS/管信    /home/oracle/sncnet/hang_ping.sh    /archive1/hj.diag/ng.traceroute.log
+1.4主机ping/traceroute探测日志诊断
+1.2.1 NGBOSS日志: tail -100f /opt/oracle/hj.diag/ng.traceroute.log
+[oracle@redhat6 ~]$ tail -100f /opt/oracle/hj.diag/ng.traceroute.log
+------2015-01-04/09:30:09-------                                          << ----探测时间
+traceroute to 10.153.177.36 (10.153.177.36), 30 hops max, 60 byte packets      << ----traceroute
+ 1  10.147.140.1 (10.147.140.1)  5.749 ms  6.243 ms  6.701 ms
+ 2  91.91.91.9 (91.91.91.9)  16.900 ms  16.451 ms  17.341 ms
+ 3  152.55.10.125 (152.55.10.125)  4.510 ms  4.979 ms  5.485 ms
+ 4  152.55.10.13 (152.55.10.13)  1.763 ms  1.861 ms  2.006 ms
+ 5  152.55.10.2 (152.55.10.2)  1.221 ms  1.828 ms  1.057 ms
+ 6  152.55.10.30 (152.55.10.30)  3.097 ms  3.914 ms  4.302 ms
+ 7  152.55.10.138 (152.55.10.138)  15.483 ms  15.777 ms  16.223 ms
+ 8  91.91.91.6 (91.91.91.6)  4.939 ms  4.356 ms  4.795 ms
+ 9  10.153.177.36 (10.153.177.36)  0.414 ms  0.512 ms  0.637 ms      <<  ----出现时间代表路由通畅
+                                                                   ---主机正常
+
+*    *      *   这类操作显示代表路由不通/主机crash
+------2015-01-04/09:30:09-------
+traceroute to 10.153.246.83 (10.153.246.83), 30 hops max, 60 byte packets
+ 1  10.147.140.1 (10.147.140.1)  5.317 ms  5.793 ms  6.270 ms
+ 2  10.153.179.252 (10.153.179.252)  7.272 ms  7.764 ms  8.249 ms
+ 3  91.91.91.13 (91.91.91.13)  6.414 ms  6.855 ms  7.297 ms
+ 4  10.153.196.38 (10.153.196.38)  4.955 ms  5.832 ms  6.691 ms
+ 5  23.23.23.5 (23.23.23.5)  4.587 ms  5.076 ms  5.587 ms
+ 6  10.153.246.83 (10.153.246.83)  0.855 ms  0.161 ms  0.144 ms
+
+
+1.2.2 NGBOSS/管信日志:  tail -100f /archive1/hj.diag/ng.sqlplus-login.log
+$ tail -20f /archive1/hj.diag/ng.traceroute.log
+------2015-01-04/10:59:04-------                                << ----探测时间
+PING 10.147.160.43: 64 byte packets                            << ----ping
+64 bytes from 10.147.160.43: icmp_seq=0. time=0. ms
+64 bytes from 10.147.160.43: icmp_seq=1. time=0. ms
+64 bytes from 10.147.160.43: icmp_seq=2. time=0. ms
+
+----10.147.160.43 PING Statistics----
+3 packets transmitted, 3 packets received, 0% packet loss      <<  ----代表路由通畅/主机正常
+round-trip (ms)  min/avg/max = 0/0/0
+                                  0% 这里非0代表网络丢包/100%则链路断开或主机crash
+
+
+2 探测配置
+主机    被探测地址/tns.txt    告警收信人    目录
+10.147.140.26    tns.txt    send_phone.cfg    /home/oracle/monitor/hang_detect/
+10.153.246.81    tns.txt    send_phone.cfg    /home/oracle/sncnet/
+例:
+管信tntxt:
+--            ip and db                            status: 0 or 1; 0 is ok.
+--ngboss                                                     << 0监控 非0不监控
+dbmon/dbmon123@10.153.171.121:1521/wcrma             0
+dbmon/dbmon123@10.153.171.122:1521/wcrma             0
+dbmon/dbmon123@10.153.171.123:1521/wcrmb             0
+dbmon/dbmon123@10.153.171.124:1521/wcrmb             0
+dbmon/dbmon123@10.153.177.83:1521/waccta             0
+dbmon/dbmon123@10.153.177.84:1521/waccta             0
+dbmon/dbmon123@10.153.177.85:1521/wacctb             0
+dbmon/dbmon123@10.153.177.86:1521/wacctb             0
+dbmon/dbmon123@10.153.177.81:1521/wres               0
+dbmon/dbmon123@10.153.177.82:1521/wres               0
+dbmon/dbmon123@10.243.0.129:1521/integb              0
+dbmon/dbmon123@10.243.0.130:1521/integb              0
+dbmon/dbmon123@10.243.0.131:1521/integb              0
+dbmon/dbmon123@10.243.0.132:1521/integb              0
+dbmon/dbmon123@10.153.178.28:1521/hisdb              0
+dbmon/dbmon123@10.153.178.27:1521/worarept           0
+dbmon/dbmon123@10.153.251.8:1521/worarept            0
+dbmon/dbmon123@10.153.179.59:1521/orcl               0
+dbmon/dbmon123@10.153.179.60:1521/orcl               0
+dbmon/dbmon123@10.153.177.57:1521/unimandb           0
+dbmon/dbmon123@10.153.178.57:1521/wsuptn             1  <<- - 渠道1目前不监控
+dbmon/dbmon123@10.153.178.58:1521/wsuptn             0
+dbmon/dbmon123@10.152.68.80:1521/icddb               0
+dbmon/dbmon123@10.152.68.90:1521/icddb               0
+dbmon/dbmon123@10.152.102.10:1521/drdb               0
+dbmon/dbmon123@10.152.102.20:1521/drdb               0
+dbmon/dbmon123@10.153.177.35:1521/spmsdb             0
+dbmon/dbmon123@10.153.177.36:1521/spmsdb             0
+dbmon/dbmon123@10.153.246.83:1521/itildb             0
+dbmon/dbmon123@10.153.246.84:1521/itildb             0
+dbmon/dbmon123@10.153.246.67:1621/itil               0
+dbmon/dbmon123@10.153.246.68:1621/itil               0
+dbmon/dbmon123@10.152.94.80:1521/iscspdb             0
+dbmon/dbmon123@10.152.94.90:1521/iscspdb             0
+dbmon/dbmon123@10.153.179.51:1521/cdrdb              0
+dbmon/dbmon123@10.153.179.52:1521/cdrdb              0
+dbmon/dbmon123@10.153.192.216:1521/settdb            0
+dbmon/dbmon123@10.153.192.58:1521/smsdb              0
+dbmon/dbmon123@10.153.192.232:1521/dmcsdb            0
+dbmon/dbmon123@10.153.245.2:1521/pmos                1   <<- - pmos下线
+dbmon/dbmon123@10.153.245.3:1521/pmos                1  <<- - pmos下线
+dbmon/dbmon123@10.153.194.219:1521/anadb             0
+dbmon/dbmon123@10.153.194.220:1521/anadb             0
+dbmon/dbmon123@10.153.178.31:1521/integ              0
+dbmon/dbmon123@10.153.178.32:1521/integ              0
+dbmon/dbmon123@10.153.178.33:1521/integ              0
+dbmon/dbmon123@10.153.178.34:1521/integ              0
+dbmon/dbmon123@10.153.177.65:1521/wzpartdb           0
+dbmon/dbmon123@10.153.177.66:1521/wzpartdb           0
+dbmon/dbmon123@10.153.219.10:/Indepdb                0
+dbmon/dbmon123@10.153.219.11:1521/Indepdb            0
+dbmon/dbmon123@10.153.242.142:1522/hrptdb            0
+dbmon/dbmon123@10.153.177.63:1521/ahaudit            0
+dbmon/dbmon123@10.153.192.5:1522/businav             0
+dbmon/dbmon123@10.153.192.218:1521/ingwdb            0
+dbmon/dbmon123@10.153.193.26:1521/ahetldb            0
+dbmon/dbmon123@10.153.192.207:1521/sendmsdb          0
+dbmon/dbmon123@10.153.242.141:1521/rambdb            0
+dbmon/dbmon123@10.153.242.142:1524/rambdbbk          0
+dbmon/dbmon123@10.153.190.150:1521/hisdb             0
+dbmon/dbmon123@10.153.190.160:1521/hisdb             0
+dbmon/dbmon123@10.153.192.165:1521/hhisdb            1 <<- - 历史库下线
+dbmon/dbmon123@10.153.177.70:1521/dictdb             0
+
+--- NGBOSS -integ/integb service                <<  --   11G scan listener探测
+dbmon/dbmon123@10.153.178.29:1521/ahaudit            0
+dbmon/dbmon123@10.153.178.29:1521/ahydasr            0
+dbmon/dbmon123@10.153.178.29:1521/ahydifly           0
+dbmon/dbmon123@10.153.178.29:1521/ahydisv            0
+dbmon/dbmon123@10.153.178.29:1521/clwx               0
+dbmon/dbmon123@10.153.178.29:1521/dbrasbkg           0
+dbmon/dbmon123@10.153.178.29:1521/iflyquery          0
+dbmon/dbmon123@10.153.178.29:1521/imcd               0
+dbmon/dbmon123@10.153.178.29:1521/linkage_cas        0
+dbmon/dbmon123@10.153.178.29:1521/linkage_flt        0
+dbmon/dbmon123@10.153.178.29:1521/linkage_grp        0
+dbmon/dbmon123@10.153.178.29:1521/linkage_lcfa       0
+dbmon/dbmon123@10.153.178.29:1521/linkage_std        0
+dbmon/dbmon123@10.153.178.29:1521/log_crm            0
+dbmon/dbmon123@10.153.178.29:1521/ngdus              0
+dbmon/dbmon123@10.153.178.29:1521/pboss              0
+dbmon/dbmon123@10.153.178.29:1521/pbossy             0
+dbmon/dbmon123@10.153.178.29:1521/srv_cdrcloud       0
+dbmon/dbmon123@10.153.178.29:1521/srv_yuchuli        0
+dbmon/dbmon123@10.153.178.29:1521/voicebase          0
+dbmon/dbmon123@10.153.178.29:1521/voicecall          0
+dbmon/dbmon123@10.153.178.29:1521/voiceetl           0
+dbmon/dbmon123@10.153.178.29:1521/voicefinal         0
+dbmon/dbmon123@10.153.178.29:1521/voiceolap          0
+dbmon/dbmon123@10.153.178.29:1521/worabidb           0
+dbmon/dbmon123@10.243.0.133:1521/bomc                0
+dbmon/dbmon123@10.243.0.133:1521/businav             0
+dbmon/dbmon123@10.243.0.133:1521/cmrm                0
+dbmon/dbmon123@10.243.0.133:1521/compuware           0
+dbmon/dbmon123@10.243.0.133:1521/HRPTDB              0
+dbmon/dbmon123@10.243.0.133:1521/itil                0
+dbmon/dbmon123@10.243.0.133:1521/mbass               0
+dbmon/dbmon123@10.243.0.133:1521/ota                 0
+dbmon/dbmon123@10.243.0.133:1521/petlnew             0
+dbmon/dbmon123@10.243.0.133:1521/pos                 0
+dbmon/dbmon123@10.243.0.133:1521/sims                0
+dbmon/dbmon123@10.243.0.133:1521/srv_audit           0
+dbmon/dbmon123@10.243.0.133:1521/srv_e2e             0
+dbmon/dbmon123@10.243.0.133:1521/srv_psma            0
+dbmon/dbmon123@10.243.0.133:1521/srv_sellapp         0
+dbmon/dbmon123@10.243.0.133:1521/srvesc              0
+dbmon/dbmon123@10.243.0.133:1521/vmeeting            0
+dbmon/dbmon123@10.243.0.133:1521/xxfp                0
+dbmon/dbmon123@10.243.0.133:1521/ycxk                0
+dbmon/dbmon123@10.243.0.133:1521/ywzy                0
+
+--guanxin                                         << --- 管信探测
+                                                 << boss探测主机与管信路由不通
+                                                   需手工屏蔽管信:设置1
+dbmon/dbmon123@10.153.177.70:1521/dictdb             0
+dbmon/dbmon123@10.147.36.20:11501/AHPRD              0
+dbmon/dbmon123@10.147.36.22:11601/AHNPRD             0
+dbmon/dbmon123@10.149.189.12:1521/evsproc            0
+dbmon/dbmon123@10.149.189.12:1521/soa                0
+dbmon/dbmon123@10.147.160.43:1521/lis                0
+dbmon/dbmon123@10.147.160.38:1521/lis                0
+dbmon/dbmon123@10.147.160.38:1521/face               0
+dbmon/dbmon123@10.147.160.37:1521/secwms             0
+dbmon/dbmon123@10.149.187.18:1521/orcl               0
+dbmon/dbmon123@10.147.42.49:1521/pmsdb               0
+dbmon/dbmon123@10.147.42.53:1521/pmsdb               0
+dbmon/dbmon123@10.147.13.13:1521/ora                 0
+*/
+
+
+/*************************************************************帐号工单**********************************************************************
+
+----------------------------------------------------个人账号创建----------------------------------------------------
+例:crm
+1. 查询当前库默认PROFILE/DEFAULT_TABLESPACE/TEMPORARY_TABLESPACE相关信息
+set line 180 pages 1000 long 999999
+select username,profile,DEFAULT_TABLESPACE,TEMPORARY_TABLESPACE,created from dba_users order by created asc;
+USERNAME PROFILE DEFAULT_TABLESPACE TEMPORARY_TABLESPACE
+------------------------------ ------------------------------ ------------------------------ ------------------------------
+CHENRUISGS PROFILE_PERSON TBS_PERSON TEMP_PERSON
+ZHANGJING01 PROFILE_PERSON TBS_PERSON TEMP_PERSON
+ZHAIHUI PROFILE_PERSON TBS_PERSON TEMP_PERSON
+
+
+-----创建账号-----
+select username from dba_users;
+select username,DEFAULT_TABLESPACE,created from dba_users where username ='ZHOUW' ;
+select dbms_metadata.get_ddl( 'USER','LIYX') from dual;
+select grantee,privilege from dba_sys_privs where grantee='GEHONGGUI' order by privilege;
+select granted_role from dba_role_privs where grantee=upper('shenff');
+
+grant create table to shenff;
+grant UNLIMITED TABLESPACE to shenff;
+
+
+2. 创建账号
+create user shenff identified by amcc$123 profile DEFAULT default tablespace USERS temporary tablespace TEMP;
+-- 厂商个人账号一般只有登录及查询权限,若有其他权限另行考虑 甲方账号登录及查询权限必须赋予,若有其他权限另行考虑
+grant connect ,select any table to shenff;
+3 . 提交工单并附加信息
+账号密码：
+boz12c / Pkd!982x
+
+----------------------------------------------------预设/程序账号创建----------------------------------------------------
+例:crm
+1.创建预设表空间 需注意 数据/索引 表空间
+(1)create tablespace tbs_xxx_data datafile '....' size 8g autoextend off;
+(2)create tablespace tbs_xxx_idx  datafile '....' size 8g autoextend off;
+(3)create user ... identified by xxx default tablespace tbs_xxx_data;
+(4)alter user ... quota unlimited on tbs_xxx_data;
+2.提交工单并附加信息
+账号密码：
+boz12c / Pkd!982x
+表空间：
+tbs_cuz_data 64G
+tbs_cuz_idx 32G
+
+create tablespace cheryfs_icar datafile '/data/oradata/cheryfsprd/cheryfs_icar01.dbf' size 30g autoextend off;
+
+
+----------------------------------------------------12C PDB/账号创建----------------------------------------------------
+1 . 创建PDB
+oracle@oracle12c01:~>
+oracle@oracle12c01:~> sqlplus / as sysdba
+SQL*Plus: Release 12.1.0.1.0 Production on Thu Oct 30 15:47:59 2014
+Copyright (c) 1982, 2013, Oracle. All rights reserved.
+Connected to:
+Oracle Database 12c Enterprise Edition Release 12.1.0.1.0 - 64bit Production
+With the Partitioning, Real Application Clusters, Automatic Storage Management, OLAP,
+Advanced Analytics and Real Application Testing options
+--查看已有pdb信息
+SQL> select name from v$pdbs;
+NAME
+------------------------------
+PDB$SEED
+HFPDB1
+HFDB
+CZYD_PDB
+WHYD_PDB
+CUZ_PDB
+BENGB_PDB
+BOZ_PDB
+HUAIN_PDB
+SQL>
+
+--创建 马鞍山12c pdb
+SQL> create pluggable database mas_pdb admin user mas_adm identified by mas_adm;;
+Pluggable database created.
+SQL>
+--启动pdb
+SQL> alter pluggable database mas_pdb open;
+Pluggable database altered.
+
+--查看PDB状态
+SQL> select name,open_mode from v$pdbs;
+
+NAME OPEN_MODE
+------------------------------ ----------
+PDB$SEED READ ONLY
+HFPDB1 READ WRITE
+HFDB READ WRITE
+CZYD_PDB READ WRITE
+WHYD_PDB READ WRITE
+CUZ_PDB READ WRITE
+BENGB_PDB READ WRITE
+BOZ_PDB READ WRITE
+HUAIN_PDB READ WRITE
+MAS_PDB READ WRITE
+
+10 rows selected.
+
+--切换到pdb
+SQL> alter session set container=MAS_PDB;
+Session altered.
+SQL>
+SQL> show con_name
+
+CON_NAME
+------------------------------
+MAS_PDB
+SQL>
+--查看默认表空间大小
+SQL> SELECT D.TABLESPACE_NAME,SPACE "SUM_SPACE(M)",BLOCKS SUM_BLOCKS,SPACE - NVL(FREE_SPACE, 0) "USED_SPACE(M)",
+2 ROUND((1 - NVL(FREE_SPACE, 0) / SPACE) * 100, 2) "USED_RATE(%)", FREE_SPACE "FREE_SPACE(M)"
+3 FROM (SELECT TABLESPACE_NAME, ROUND(SUM(BYTES) / (1024 * 1024), 2) SPACE, SUM(BLOCKS) BLOCKS
+4 FROM DBA_DATA_FILES GROUP BY TABLESPACE_NAME) D,
+5 ( SELECT TABLESPACE_NAME, ROUND(SUM(BYTES) / (1024 * 1024), 2) FREE_SPACE
+6 FROM DBA_FREE_SPACE GROUP BY TABLESPACE_NAME) F
+7 WHERE D.TABLESPACE_NAME = F.TABLESPACE_NAME(+)
+8 ORDER BY "USED_RATE(%)" DESC;
+TABLESPACE_NAME SUM_SPACE(M) SUM_BLOCKS USED_SPACE(M) USED_RATE(%) FREE_SPACE(M)
+------------------------------ ------------ ---------- ------------- ------------ -------------
+SYSAUX 640 81920 633.19 98.94 6.81
+SYSTEM 260 33280 255.12 98.12 4.88
+
+
+SQL> select file_name from dba_data_files;
+
+FILE_NAME
+---------------------------------------------------------------------------------------
++DATADG1/DSCDB/06A01FD2B2CDB976E0537600F30ADFE3/DATAFILE/system.361.862328989
++DATADG1/DSCDB/06A01FD2B2CDB976E0537600F30ADFE3/DATAFILE/sysaux.360.862328987
+
+--扩大系统表空间
+SQL> alter database datafile '+DATADG1/DSCDB/06A01FD2B2CDB976E0537600F30ADFE3/DATAFILE/system.361.862328989' resize 2g;
+Database altered.
+SQL>
+SQL> alter database datafile '+DATADG1/DSCDB/06A01FD2B2CDB976E0537600F30ADFE3/DATAFILE/sysaux.360.862328987' resize 2g;
+Database altered.
+SQL> SELECT D.TABLESPACE_NAME,SPACE "SUM_SPACE(M)",BLOCKS SUM_BLOCKS,SPACE - NVL(FREE_SPACE, 0) "USED_SPACE(M)",
+2 ROUND((1 - NVL(FREE_SPACE, 0) / SPACE) * 100, 2) "USED_RATE(%)", FREE_SPACE "FREE_SPACE(M)"
+3 FROM (SELECT TABLESPACE_NAME, ROUND(SUM(BYTES) / (1024 * 1024), 2) SPACE, SUM(BLOCKS) BLOCKS
+4 FROM DBA_DATA_FILES GROUP BY TABLESPACE_NAME) D,
+5 ( SELECT TABLESPACE_NAME, ROUND(SUM(BYTES) / (1024 * 1024), 2) FREE_SPACE
+6 FROM DBA_FREE_SPACE GROUP BY TABLESPACE_NAME) F
+7 WHERE D.TABLESPACE_NAME = F.TABLESPACE_NAME(+)
+8 ORDER BY "USED_RATE(%)" DESC;
+
+TABLESPACE_NAME SUM_SPACE(M) SUM_BLOCKS USED_SPACE(M) USED_RATE(%) FREE_SPACE(M)
+------------------------------ ------------ ---------- ------------- ------------ -------------
+SYSAUX 2048 262144 633.19 16.94 1890
+SYSTEM 2048 262144 255.12 12.46 1792.88
+
+SQL>
+--注意检查ASM使用情况
+oracle@oracle12c01:~> su - grid
+Password:
+grid@oracle12c01:~>
+grid@oracle12c01:~>
+grid@oracle12c01:~> sqlplus / as sysasm
+SQL*Plus: Release 12.1.0.1.0 Production on Thu Oct 30 15:53:00 2014
+Copyright (c) 1982, 2013, Oracle. All rights reserved.
+Connected to:
+Oracle Database 12c Enterprise Edition Release 12.1.0.1.0 - 64bit Production
+With the Real Application Clusters and Automatic Storage Management options
+
+SQL> select name,total_mb,free_mb from v$asm_diskgroup;
+NAME TOTAL_MB FREE_MB
+------------------------------ ---------- ----------
+DATADG2 786437 77291
+DATADG1 524290 59765
+OCRDG 2048 1748
+
+SQL>
+
+2.创建个人/程序账号及授权
+按照个人账号/程序账号规范进行创建
+3.提交工单并附加信息
+账号密码：
+boz12c / Pkd!982x
+表空间：
+tbs_cuz_data 64G
+tbs_cuz_idx 32G
+TNS:
+boz_pdb=
+(DESCRIPTION =
+(ADDRESS = (PROTOCOL = TCP)(HOST = 10.243.0.120)(PORT = 1521))
+(CONNECT_DATA =
+(SERVER = DEDICATED)
+(SERVICE_NAME = boz_pdb)
+)
+)
+
+************************************************************************************************************************************/
+
+---exp导出
+exp \'\/ as sysdba\' tables=APPS.CW_KMYE,APPS.CW_PZ,APPS.CW_YSZK,APPS.CW_YFZK,APPS.CW_YFMX,APPS.CW_YSMX,APPS.CW_GDZC,APPS.CW_GYS,APPS.CW_CGDDZB2,APPS.CW_CGDDMX2,APPS.CW_KJKM,APPS.CW_PZBHDYB file=/data/ahprd/anhui201410-201504.dmp buffer=20480000 log=/data/ahprd/anhui201410-201504.log
+
+
+---自动清理归档
+40 * * * * sh /home/oracle/wangt/delete_arch.sh >/home/oracle/wangt/delete_arch.sh.out
+vi delete_arch.sh
+. ~/.bash_profile
+rman target /  <<EOF
+delete archivelog until time 'sysdate-1' ; 
+yes
+exit
+EOF
+
+--清理归档
+rman target /
+crosscheck archivelog all;
+delete archivelog all  ;（全清）
+--指定删除7天前的归档日志
+DELETE ARCHIVELOG ALL COMPLETED BEFORE 'SYSDATE-7'；
+
+----vmstat等历史信息
+/ray/pflog
+
+----kill_job
+SET lines 180 pages 100
+COL owner_name FORMAT a10;
+COL job_name FORMAT a30
+COL state FORMAT a12
+COL operation LIKE owner_name
+COL job_mode LIKE owner_name
+select * from DBA_DATAPUMP_JOBS;
+OWNER_NAME      JOB_NAME                   OPERATION     JOB_MODE   STATE                     DEGREE        ATTACHED_SESSIONS     DATAPUMP_SESSIONS
+------------    -----------------------   ----------   -------------------- ------------------------------ ----------      -----------------                        -----------------
+SYSTEM          SYS_EXPORT_SCHEMA_02        EXPORT        SCHEMA        EXECUTING               1                                       1                                    3
+SYSTEM          SYS_EXPORT_SCHEMA_01        EXPORT        SCHEMA         NOT RUNNING          0                                     0                                     0
+
+impdp userid=\"/ as sysdba\"  attach=SYS_IMPORT_FULL_01
+Export> kill_job
+Are you sure you wish to stop this job ([yes]/no): yes
+OWNER_NAME           JOB_NAME                         OPERATION     JOB_MODE   STATE                     DEGREE        ATTACHED_SESSIONS     DATAPUMP_SESSIONS
+---------------            ------------------------------              -------------------- -------------------- ------------------------------ ----------      -----------------                        -----------------
+SYSTEM               SYS_EXPORT_SCHEMA_01        EXPORT        SCHEMA         NOT RUNNING                   0                                     0                                     0
+
+对于state not running的可以直接删除既可
+drop table system.SYS_EXPORT_SCHEMA_01 purge;
+SQL> select * from DBA_DATAPUMP_JOBS;
+no rows selected
+
+----get_ind_ddl 批量获取建索引语句
+vi cfg.txt
+DBCUSTADM    IDX_CT_CUST_INFO_GROUPID
+DBCUSTADM    IDX_CT_CUSTCONTACT_INFO_0
+DBCUSTADM    IDX_CT_CUSTCONTACT_INFO_1
+DBCUSTADM    IDX_CT_CUSTCONTACT_INFO_2
+
+vi get_ind_ddl.sh
+cat cfg.txt|while read OWNER IDNAME
+do
+sqlplus -S /nolog<<!>>get_ind_ddl.sql
+connect /as sysdba
+set heading off
+set feedback off
+set lin 2000 pagesize 0 longc 999999 long 999999
+exec DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM,'SQLTERMINATOR',TRUE);
+select dbms_metadata.get_ddl( 'INDEX', '${IDNAME}','${OWNER}' ) from dual;
+disconnect
+quit
+!
+done
+
+---清空回收站,重新检查差异的对象
+purge dba_RECYCLEBIN;
+
+----编译失效对象
+alter PACKAGE BODY Csettora.PAPER_IMPORT compile;
+select'alter'||object_type||''||owner||'.'||object_name ||' compile;' from dba_objects where STATUS='INVALID' and owner in ('Csettora'); 
+
+----抓取建dblink语句
+select dbms_metadata.get_ddl('DB_LINK','YZDB','CCMOS') from dual;
+
+----创建物化视图前先删除同名的表
+drop table  "CCMOS"."T_V_BZDETAIL"；
+----批量抓取建物化视图语句
+conn  / as sysdba
+set heading off;
+set pages 0
+set feedback off
+set lines 500
+set long 99999
+exec DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM,'SQLTERMINATOR',TRUE);
+spool ddl.log
+select dbms_metadata.get_ddl('MATERIALIZED_VIEW','T_V_BZDETAIL','CCMOS') from dual;
+
+***************************************************************************
+cat a.txt | while read owner tabname ; do
+
+sqlplus -S /nolog <<EOF >> move.sql
+conn  / as sysdba
+set heading off;
+set pages 0
+set feedback off
+set lines 500
+set long 99999
+
+exec DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM,'SQLTERMINATOR',TRUE);
+
+select dbms_metadata.get_ddl('MATERIALIZED_VIEW','$tabname','$owner') from dual;
+
+disconnect;
+exit;
+EOF
+
+done;
+*************************************************************************** 
+
+----添加附加日志
+ALTER TABLE "WFCFG"."T_WF_PREPORT1086HIS_LAJI"
+ADD SUPPLEMENTAL LOG GROUP "GGS_T_WF_PREPORT108_36103" ("INDICTSEQ","SVCTYPEID","HOMEPROV","ACCEPTTIME","CALLER_NO","CALLEE_NO","MSISDN","SUBSNAME") ALWAYS;
+
+add trandata DBACCADM.UR_MONI_USER_INFO
+
+
+----删除附加日志
+ALTER TABLE WFCFG.T_WF_PREPORT1086HIS_LAJI  DROP SUPPLEMENTAL LOG GROUP GGS_T_WF_PREPORT108_36103;
+
+----9i获取scn
+col get_system_change_number for 9999999999999999999999999
+select dbms_flashback.get_system_change_number from dual;
+
+----后台sqlplus
+nohup sqlplus '/ as sysdba' @wres1_20141223_create_syn > wres1_20141223_create_syn.sql.out &
+
+----统计信息锁信息
+select owner, table_name, stattype_locked from dba_tab_statistics where stattype_locked is not null and owner not in ('SYS','SYSTEM');
+select 'exec DBMS_STATS.UNLOCK_TABLE_STATS('''||owner||''','''||table_name||''');' from dba_tab_statistics where stattype_locked is not null and owner not in ('SYS','SYSTEM')
+
+--锁定统计收集
+exec dbms_stats.unlock_table_stats('FSZW','IB_ACC_YHFEELORGBILL');
+exec dbms_stats.lock_table_stats('FSZW','IB_ACC_YHFEELORGBILL');
+
+select last_analyzed ,STATTYPE_LOCKED,table_name,partition_name from dba_tab_statistics where
+owner='FSZW' and table_name='IB_ACC_YHFEELORGBILL';
+
+----查看某个时间点的数据
+select count(*) from DBCUSTADM.UR_USERIMSI_INFO as of timestamp TO_TIMESTAMP('2014-12-29 15:30:00','YYYY-MM-DD HH:MI:SS');
+
+select count(*)
+from DBCUSTADM.CT_BLACKLIST_INFO
+AS OF TIMESTAMP to_timestamp('2014-12-29 15:54:02','YYYY-MM-DD hh24:mi:ss');
+
+
+----ftp的传输脚本
+vi  ftp_gg_dat_20130913.sh
+
+ftp -inv 10.252.25.129  <<!
+user oracle xxxxxx
+bin
+prompt off
+cd /datadump/gg
+mput exp_gg_dat*20130913*.dmp
+bye
+!
+nohup sh ftp_gg_dat_20130913.sh > ftp_gg_dat_20130913.sh.out &
+
+HOST_IP=10.153.251.5
+USRNM=oracle
+PWD=oracle!2013
+ftp -inv $HOST_IP  <<!
+user $USRNM $PWD
+bin
+cd /oradata/bossa/data04/ogg_expa
+put exp_gg_auto_DBOBOSSADM_01P_01.dmp
+put exp_gg_auto_DBOBOSSADM_01P_02.dmp
+put exp_gg_auto_DBOBOSSADM_01P_03.dmp
+close
+bye
+!
+exit
+
+----月度巡检信息收集ftp
+for i in 10.153.177.73 10.153.177.75
+do
+ftp -n ${i} <<!
+user oracle Jlzt!123
+bin
+prompt off
+cd ~/monthly
+mget *txt
+mget *xml
+bye
+!
+done
+
+----检查长事务
+alter session set nls_date_format='yyyy-mm-dd hh24:mi:ss';
+col event for a30
+col OSUSER for a10
+col USERNAME for a10
+col PROGRAM for a35
+set lin 200 pagesize 50000
+SELECT s.inst_id,s.sid,s.serial#,s.status,s.username,t.start_time,s.WAIT_TIME, s.osuser, s.sql_id, s.program
+FROM gv$session s,gv$transaction t
+WHERE s.INST_ID=t.INST_ID and s.saddr=t.ses_addr
+order by  t.start_time desc;
+
+----长事物sql_id已不存在，查看之前的 sql_id
+alter session set nls_date_format='yyyy-mm-dd hh24:mi:ss';
+col event for a30
+col OSUSER for a10
+col USERNAME for a10
+col PROGRAM for a35
+set lin 200 pagesize 50000
+SELECT s.inst_id,s.sid,s.serial#,s.status,s.username,t.start_time,s.WAIT_TIME, s.osuser, s.sql_id,s.prev_sql_id, s.program
+FROM gv$session s,gv$transaction t
+WHERE s.INST_ID=t.INST_ID and s.saddr=t.ses_addr
+order by  t.start_time desc;
+
+
+-- sqlplus生产xls的excel文件
+connect / as sysdba;
+SET NEWPAGE 0
+SET SPACE 0
+SET LINESIZE 80
+SET PAGESIZE 0
+SET ECHO OFF
+SET FEEDBACK OFF
+SET VERIFY OFF
+SET HEADING OFF
+SET MARKUP HTML OFF SPOOL OFF
+set markup html on;
+
+spool c:abc.xls
+select * from tab;
+spool off;
+
+-- 如何在excel的每一行数据后面插入一个逗号                                                                                   
+----用自定义格式可以解决                                                                                             
+    选中要加“,”的行→右击→设置单元格格式→数字→自定义→在“类型”下输入：@","(""一定要在英文状态下输入）→确定
+
+--根据CURRENT_SCN导数
+col CURRENT_SCN for 9999999999999999
+select CURRENT_SCN from v$database ;   
+
+---time得到scn
+select timestamp_to_scn(to_date('2015-01-29 11:16:50','yyyy-mm-dd hh24:mi:ss')) aaa from dual;
+
+--scn得到time
+select scn_to_timestamp(55777932077) from dual;
+
+select scn_to_timestamp(CURRENT_SCN) from v$database;
+
+---q'[]'
+insert into ogg.dangtian values('CLEARAPP','B_HT_MMS_01',q'['20150115']','deal_date');
+select '''a''' from dual;
+
+-----创建DB_LINK
+CREATE [ PUBLIC ]         --指定是否是public database link,不指定则是private database link
+DATABASE LINK dblink_name --指定database link name
+CONNECT TO user           --remote database user
+IDENTIFIED BY password    --remote database user password，这个password只有在创建时需要明文输入，以后获取的password都是密文加密的
+USING 'connect_string'    --这里的connect_string可以是直接用连接remote database service name，
+                                                        也可以用remote database service name description
+/
+
+create public database link old_integ
+connect to ogg
+identified by "Ggsci123"
+using 'integ1';
+
+drop database link tydb;
+
+
+select * from ogg.CELUE_1117@old_integ;
+
+WRES1
+create public database link sou_wres
+connect to ogg
+identified by "Ggsci123"
+using 'WRES1';
+
+select * from "DBMARKETADM"."MK_PRC_DICT"@sou_wres
+minus
+select * from "DBMARKETADM"."MK_PRC_DICT";
+
+select * from "DBMARKETADM"."MK_PRC_DICT"
+minus
+select * from "DBMARKETADM"."MK_PRC_DICT"@sou_wres;
+
+
+在源端配置目标端的tns
+PMOS =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = 10.153.245.12)(PORT = 1521))
+    (ADDRESS = (PROTOCOL = TCP)(HOST = 10.153.245.13)(PORT = 1521))
+    (LOAD_BALANCE = yes)
+    (FAIL0VER = yes)
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = pmos)
+    )
+  )
+
+
+--查看db_link
+set linesize 350 pagesize 200
+COL OWNER FOR a10
+col db_link for a40
+col username for a10
+col host for a100
+select owner,db_link,username,host,to_char(created,'yyyy-mm-dd hh24:mi:ss') create_date from dba_db_links;
+
+--dba_constraints 约束
+TypeCode    Type Description                                Acts On Level
+C                    Check on a table                                Column
+O                    Read Only on a view                            Object
+P                    Primary Key                                            Object
+R                    Referential AKA Foreign Key            Column
+U                    Unique Key                                            Column
+V                    Check Option on a view                    Object
+
+CHERY_CGM.CHECK_SUB_TASK_PROCESS
+
+         CONSTRAINT "PK_CHECK_SUB_TASK_PROCESS" PRIMARY KEY ("ID", "PROCESS_ID")
+select count(*) from CHERY_CGM.CHECK_SUB_TASK_PROCESS where id='2112102111200013' and PROCESS_ID='';
+
+select count(*) from CHERY_CGM.CHECK_SUB_TASK_PROCESS@TO_CORE1
+select count(*) from obdp1.CHECK_SUB_TASK_PROCESS;
+
+
+select * from CHERY_CGM.CHECK_GENERAL_TASK@TO_CORE1
+minus
+select * from obdp1.CHECK_GENERAL_TASK;
+
+
+//查找某表被锁住
+set pages 130;
+set lines 1300;
+col object_name for a20;
+col machine for a20;
+col program for a20;
+col killid for a30;
+col os_pid format a20;
+
+select object_name ,machine ,s.program ,
+s.sid||','||s.serial# as killid,
+p.spid as os_pid ,
+s.sql_address,
+l.locked_mode,
+s.username,
+s.process,
+s.sql_id
+from v$locked_object l,
+dba_objects o ,v$session s ,v$process p
+where l.object_id=o.object_id and l.session_id=s.sid
+and s.paddr=p.addr
+and object_name=upper('&tablename') and o.owner=upper('&owner')
+order by 1
+;
+
+
+
+----logdump使用
+1)进入安装目录，cd $OGG ,logdump登录
+2)常见设置参数：（提高可读性）
+    1. To view the record header with the data:
+         GHDR ON
+    2. To add column information:
+         DETAIL ON
+    3. To add hex and ASCII data values to the column information:
+         DETAIL DATA
+    4.To view user tokens:
+         USERTOKEN ON
+    5.open ./dirdat/zx/tf056626
+    6.pos RBA
+
+----logmnr使用
+--添加要分析的日志文件
+execute dbms_logmnr.add_logfile(logfilename=>'/arch01/1_50082_852588520.dbf',options=>dbms_logmnr.new);
+execute dbms_logmnr.add_logfile(logfilename=>'/arch01/1_50083_852588520.dbf',options=>dbms_logmnr.addfile);
+execute dbms_logmnr.add_logfile(logfilename=>'/arch01/1_50084_852588520.dbf',options=>dbms_logmnr.addfile);
+
+--启动LogMiner
+execute dbms_logmnr.start_logmnr(Options => DBMS_LOGMNR.DICT_FROM_ONLINE_CATALOG)
+
+--查看日志分析结果
+select username,scn,timestamp,sql_redo from v$logmnr_contents;
+
+set pagesize 2000 line 400
+col seg_name for a50
+select operation,seg_owner,seg_name,count(*)  from v$logmnr_contents group by seg_owner,seg_name,operation;
+
+select username,timestamp,sql_redo from v$logmnr_contents
+where lower(sql_redo) like '%datafile%';
+
+
+--结束LogMiner
+execute dbms_logmnr.end_logmnr;
+
+--接上，logmnr获取导出需要的SCN
+ALTER SESSION FORCE PARALLEL QUERY PARALLEL 16;
+set numwidth 30
+col THREAD# for 99999999
+select THREAD#,max(cscn) max_cscn,decode(max(cscn),null,null,scn_to_timestamp(max(cscn))) c_timestamp
+from v$logmnr_contents
+group by THREAD#
+order by 2;
+
+--删除附加日志
+set lin 180 pagesize 0
+select 'alter table '||owner||'.'||table_name||' drop supplemental log group '||LOG_GROUP_NAME||';'
+from dba_log_groups
+where table_name like 'MK_USERLABEL_INFO_%';
+
+--在重新添加附加日志
+select 'add trandata '||owner||'.'||table_name
+from dba_tables
+where table_name like 'MK_USERLABEL_INFO_%';
+
+--检查是否有添加遗漏的
+select owner,table_name from ogg.CELUE_1501
+minus
+select owner,table_name from dba_log_groups;
+
+--impdp导入ORA-39242
+ORA-39242: Unable to export/import TABLE_DATA: … due to table attributes.
+    Check table attributes as it says. May be the indexes are in UNUSABLE state!!!
+--查看索引状态
+    select OWNER,INDEX_NAME,STATUS from dba_indexes where TABLE_NAME='B_HT_MMS_12';
+    alter index CLEARAPP.B_HT_MMS_12_PK rebuild;
+
+--自动导出传输
+/* bcv_gg_auto_dat_owner_seq_query.sh
+. /settora/.profile
+#Used by OGG AUTO EXP WITH SCN
+
+Usage()
+{
+     echo "------------------------------------------------------------"
+     echo " Usage"
+     echo "     nohup ksh bcv_gg_auto_dat_owner_seq.sh -t TABLE -o OWNER -s SEQ -d DUMPDIR -p PARALLEL -w WORKDIR -i TAR_IP -q TAR_DIR -u V_USRNM -a V_PWD &"
+     echo " Sample:"
+     echo "     nohup ksh bcv_gg_auto_dat_owner_seq.sh -t OGG.GGTAB_SEG_20140428 -o BILLDEV -s 01P -d DATATMP -p 4 -w `pwd` -i 152.55.253.73 -q /oradata02_xp -u oarcle -a oracle &"
+     echo "------------------------------------------------------------"
+}
+
+# Main
+if [ $# -ne 20 ]
+then
+        Usage
+        exit 1
+fi
+while getopts :t:o:s:d:p:w:i:q:u:a: OPTION
+do
+        case $OPTION in
+                t) V_TAB=$OPTARG;;
+                o) V_OWNER=$OPTARG;;
+                s) V_SEQ=$OPTARG;;
+                d) V_DUMPDIR=$OPTARG;;
+                p) V_PARALLEL=$OPTARG;;
+                w) V_WORKDIR=$OPTARG;;
+                i) V_TAR_IP=$OPTARG;;
+                q) V_TAR_DIR=$OPTARG;;
+                u) V_USRNM=$OPTARG;;
+                a) V_PWD=$OPTARG;;
+                ?) Usage
+                exit 1;;
+         esac
+done
+
+cd $V_WORKDIR
+
+sqlplus -S '/ as sysdba'<<!| grep EXP_OGG | awk -F'#' '{print $2}'  >exp_gg_auto_"$V_OWNER"_"$V_SEQ".par
+set lines 300
+set heading off
+set feedback off
+set numwidth 30
+define TAB='$V_TAB'
+define OWNER='$V_OWNER'
+define SEQ='$V_SEQ'
+define DUMPDIR='$V_DUMPDIR'
+define PARALLEL='$V_PARALLEL'
+select 'EXP_OGG #' ||  STR from (
+  select 1 LEN ,'USERID=''/ as sysdba''' STR from dual
+  union all
+  select 2 LEN ,'DIRECTORY=&DUMPDIR' STR from dual
+  union all
+  select 3 LEN ,'DUMPFILE=exp_gg_auto_'||'&OWNER'||'_'||'&SEQ'||'_%U.dmp' STR from dual
+  union all
+  select 4 LEN ,'LOGFILE=exp_gg_auto_'||'&OWNER'||'_'||'&SEQ'||'.log' STR from dual
+  union all
+  select 5 LEN ,'PARALLEL='||trim(to_char(&PARALLEL)) STR from dual
+  union all
+  select 6 LEN ,'CONTENT=DATA_ONLY' STR from dual
+  union all
+  select 7 LEN ,'FILESIZE=42949672960' STR from dual
+  union all
+  select 8 LEN ,'TABLES=(' STR from dual
+  union all
+  select 100+rownum LEN,owner||'.'||table_name from &TAB where owner='&OWNER' and seq='&SEQ'
+  union all
+  select 2001 LEN ,')' STR from dual
+  union all
+  select 2004 LEN,WHERE_STR from &TAB where owner='&OWNER' and seq='&SEQ'
+ ) order by LEN;
+disconnect;
+quit
+!
+
+expdp parfile=exp_gg_auto_"$V_OWNER"_"$V_SEQ".par>exp_gg_auto_"$V_OWNER"_"$V_SEQ".par.out &&date
+
+V_FILE="ftp_gg_auto_"$V_OWNER"_"$V_SEQ".sh"
+
+cat /dev/null>$V_FILE
+echo 'HOST_IP='$V_TAR_IP>>$V_FILE
+echo 'USRNM='$V_USRNM>>$V_FILE
+echo 'PWD='$V_PWD>>$V_FILE
+echo 'ftp -inv $HOST_IP  <<!'>>$V_FILE
+echo 'user $USRNM $PWD'>>$V_FILE
+echo 'bin'>>$V_FILE
+echo 'cd '$V_TAR_DIR>>$V_FILE
+ls -tlr exp_gg_auto_"$V_OWNER"_"$V_SEQ"_??.dmp|awk '{print "put "$9}'>>$V_FILE
+echo 'close'>>$V_FILE
+echo 'bye'>>$V_FILE
+echo '!'>>$V_FILE
+echo 'exit'>>$V_FILE
+
+sh $V_FILE > $V_FILE".out"
+
+ls -tlr exp_gg_auto_"$V_OWNER"_"$V_SEQ"_??.dmp>"exp_gg_auto_"$V_OWNER"_"$V_SEQ".txt"
+rm -rf exp_gg_auto_"$V_OWNER"_"$V_SEQ"_??.dmp
+
+exit
+*/
+
+/* 导数select 语句
+----清理数据的表
+drop table ogg.to_clear_tab_1228;
+create table ogg.to_clear_tab_1228 (
+ owner varchar2(30),
+ table_name varchar2(30),
+ where_str varchar2(200)
+);
+
+/* to_clear.txt
+CLEARAPP:B_HT_SMS_09:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_22:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_02:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_23:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_10:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_12:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_06:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_19:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_08:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_03:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_11:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_14:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_21:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_13:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_07:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_18:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_17:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_15:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_20:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_30:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_04:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_26:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_27:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_29:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_01:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_28:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_16:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_24:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_05:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_31:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_SMS_25:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_MMS_05:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_MMS_06:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_MMS_09:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_MMS_10:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_MMS_07:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_MMS_08:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_MMS_04:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_MMS_03:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_MMS_02:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_MMS_01:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_MMS_12:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_HT_MMS_11:WHERE NOT(DEAL_DATE<''20131200000000'') OR DEAL_DATE IS NULL
+CLEARAPP:B_NET_551_1002_01:WHERE NOT(DEAL_DATE<''20131200'') OR DEAL_DATE IS NULL
+CLEARAPP:B_NET_551_1002_02:WHERE NOT(DEAL_DATE<''20131200'') OR DEAL_DATE IS NULL
+CLEARAPP:B_NET_551_1002_03:WHERE NOT(DEAL_DATE<''20131200'') OR DEAL_DATE IS NULL
+CLEARAPP:B_NET_551_1002_04:WHERE NOT(DEAL_DATE<''20131200'') OR DEAL_DATE IS NULL
+CLEARAPP:B_NET_551_1002_05:WHERE NOT(DEAL_DATE<''20131200'') OR DEAL_DATE IS NULL
+CLEARAPP:B_NET_551_1002_06:WHERE NOT(DEAL_DATE<''20131200'') OR DEAL_DATE IS NULL
+CLEARAPP:B_NET_551_1002_07:WHERE NOT(DEAL_DATE<''20131200'') OR DEAL_DATE IS NULL
+CLEARAPP:B_NET_551_1002_08:WHERE NOT(DEAL_DATE<''20131200'') OR DEAL_DATE IS NULL
+CLEARAPP:B_NET_551_1002_09:WHERE NOT(DEAL_DATE<''20131200'') OR DEAL_DATE IS NULL
+CLEARAPP:B_NET_551_1002_10:WHERE NOT(DEAL_DATE<''20131200'') OR DEAL_DATE IS NULL
+CLEARAPP:B_NET_551_1002_11:WHERE NOT(DEAL_DATE<''20131200'') OR DEAL_DATE IS NULL
+CLEARAPP:B_NET_551_1002_12:WHERE NOT(DEAL_DATE<''20131200'') OR DEAL_DATE IS NULL
+CLEARAPP:SP_01_STAT_OTHER_RESULT:WHERE NOT(MONTH<''201406'') OR MONTH IS NULL
+CLEARAPP:A_CALLING_STAT_1005_2:WHERE NOT(MONTH<''201411'') OR MONTH IS NULL
+CLEARAPP:A_CALLING_STAT_1005_4:WHERE NOT(MONTH<''201411'') OR MONTH IS NULL
+CLEARAPP:A_CALLING_STAT_1005_3:WHERE NOT(MONTH<''201411'') OR MONTH IS NULL
+CLEARAPP:A_CALLING_STAT_1005_1:WHERE NOT(MONTH<''201411'') OR MONTH IS NULL
+CLEARAPP:A_CALLING_STAT_1003_2:WHERE NOT(MONTH<''201411'') OR MONTH IS NULL
+CLEARAPP:A_CALLING_STAT_1003_1:WHERE NOT(MONTH<''201411'') OR MONTH IS NULL
+CLEARAPP:A_CALLING_STAT_1003_4:WHERE NOT(MONTH<''201411'') OR MONTH IS NULL
+CLEARAPP:A_CALLING_STAT_1003_3:WHERE NOT(MONTH<''201411'') OR MONTH IS NULL
+CLEARAPP:A_CALLING_STAT_1004_3:WHERE NOT(MONTH<''201411'') OR MONTH IS NULL
+CLEARAPP:A_CALLING_STAT_1004_4:WHERE NOT(MONTH<''201411'') OR MONTH IS NULL
+CLEARAPP:A_CALLING_STAT_1004_2:WHERE NOT(MONTH<''201411'') OR MONTH IS NULL
+CLEARAPP:A_CALLING_STAT_1004_1:WHERE NOT(MONTH<''201411'') OR MONTH IS NULL
+CLEARAPP:A_CALLING_STAT_1001_4:WHERE NOT(MONTH<''201411'') OR MONTH IS NULL
+CLEARAPP:A_CALLING_STAT_1001_1:WHERE NOT(MONTH<''201411'') OR MONTH IS NULL
+CLEARAPP:A_CALLING_STAT_1001_3:WHERE NOT(MONTH<''201411'') OR MONTH IS NULL
+CLEARAPP:A_CALLING_STAT_1001_2:WHERE NOT(MONTH<''201411'') OR MONTH IS NULL
+CLEARAPP:SP_02_M_STAT_01:WHERE NOT(STAT_DATE<''201312'') OR STAT_DATE IS NULL
+CLEARAPP:SP_02_M_STAT_03:WHERE NOT(STAT_DATE<''201312'') OR STAT_DATE IS NULL
+CLEARAPP:SP_02_M_STAT_04:WHERE NOT(STAT_DATE<''201312'') OR STAT_DATE IS NULL
+CLEARAPP:SP_02_M_STAT_05:WHERE NOT(STAT_DATE<''201312'') OR STAT_DATE IS NULL
+CLEARAPP:SP_02_M_STAT_06:WHERE NOT(STAT_DATE<''201312'') OR STAT_DATE IS NULL
+CLEARAPP:SP_02_M_STAT_07:WHERE NOT(STAT_DATE<''201312'') OR STAT_DATE IS NULL
+CLEARAPP:SP_02_M_STAT_08:WHERE NOT(STAT_DATE<''201312'') OR STAT_DATE IS NULL
+CLEARAPP:SP_02_M_STAT_09:WHERE NOT(STAT_DATE<''201312'') OR STAT_DATE IS NULL
+CLEARAPP:SP_02_M_STAT_10:WHERE NOT(STAT_DATE<''201312'') OR STAT_DATE IS NULL
+CLEARAPP:SP_02_M_STAT_11:WHERE NOT(STAT_DATE<''201312'') OR STAT_DATE IS NULL
+CLEARAPP:SP_02_M_STAT_12:WHERE NOT(STAT_DATE<''201312'') OR STAT_DATE IS NULL
+CLEARAPP:SP_02_DGDX_STAT:WHERE NOT(STAT_DATE<''201406'') OR STAT_DATE IS NULL
+CLEARAPP:ROAM_STAT_01:WHERE NOT(YEAR<2013) OR YEAR IS NULL
+CLEARAPP:ROAM_STAT_02:WHERE NOT(YEAR<2013) OR YEAR IS NULL
+CLEARAPP:ROAM_STAT_03:WHERE NOT(YEAR<2013) OR YEAR IS NULL
+CLEARAPP:ROAM_STAT_04:WHERE NOT(YEAR<2013) OR YEAR IS NULL
+CLEARAPP:ROAM_STAT_05:WHERE NOT(YEAR<2013) OR YEAR IS NULL
+CLEARAPP:ROAM_STAT_06:WHERE NOT(YEAR<2013) OR YEAR IS NULL
+CLEARAPP:ROAM_STAT_07:WHERE NOT(YEAR<2013) OR YEAR IS NULL
+CLEARAPP:ROAM_STAT_08:WHERE NOT(YEAR<2013) OR YEAR IS NULL
+CLEARAPP:ROAM_STAT_09:WHERE NOT(YEAR<2013) OR YEAR IS NULL
+CLEARAPP:ROAM_STAT_10:WHERE NOT(YEAR<2013) OR YEAR IS NULL
+CLEARAPP:ROAM_STAT_11:WHERE NOT(YEAR<2013) OR YEAR IS NULL
+CLEARAPP:ROAM_STAT_12:WHERE NOT(YEAR<2013) OR YEAR IS NULL
+*/
+
+--检查截取字符
+head -1  to_clear.txt|awk -F\: '{print "insert into ogg.to_clear_tab_1228 values('\''"$1"'\'','\''"$2"'\'','\''"$3"'\'');"}'
+
+--插入 清理数据的表 中
+cat  to_clear.txt|awk -F\: '{print "insert into ogg.to_clear_tab_1228 values('\''"$1"'\'','\''"$2"'\'','\''"$3"'\'');"}'>to_clear.sql
+@to_clear.sql
+select count(*) from   ogg.to_clear_tab_1228;
+commit;
+
+drop table OGG.CLE_TAB_20141228;
+define tab='OGG.CLE_TAB_20141228'
+define celue_tab='OGG.to_clear_tab_1228'
+create table &tab as
+select owner,table_name,sum(gb) gb,sum(partition) partition,decode(sum(type),0,'NORMAL_OBJ','LARGE_OBJ') type from (
+  select x.owner,x.table_name,nvl(s.bytes,0)/1024/1024/1024 GB,1 partition,0 TYPE
+  from dba_segments s, (select distinct owner,table_name from &celue_tab) x
+  where s.owner(+)=x.owner and s.segment_name(+)=x.table_name
+  union all
+  select x.owner,x.table_name,s.bytes/1024/1024/1024 GB,0 partition,1 TYPE
+  from dba_segments s,dba_lobs l, (select distinct owner,table_name from &celue_tab) x
+  where s.owner=l.OWNER and s.segment_name=l.SEGMENT_NAME and l.owner=x.owner and l.table_name=x.table_name
+) group by owner,table_name;
+
+------------------------
+drop table OGG.CLE_TAB_20141228_query;
+col gb for 99999.99
+col seq for a30
+create table OGG.CLE_TAB_20141228_query as
+select owner,table_name,gb,'CLE_'||trim(to_char(rownum,'009'))||'P' SEQ,where_str from (
+  select o.owner,o.table_name,o.gb,'QUERY='||o.owner||'.'||o.table_name||':"'||c.where_str||'"' where_str from  OGG.CLE_TAB_20141228 o, ogg.to_clear_tab_1228 c
+  where o.owner=c.owner and o.table_name=c.table_name
+  order by gb
+);
+
+----------------------------
+define exp_file="'auto_exp_cle_file'"
+define tar_str="decode(mod(rownum,2),1,q'[ -i 10.243.4.200 -q /temp1 -u oracle -a Oracle!123]',q'[ -i 10.243.4.200 -q /temp2 -u oracle -a Oracle!123]')"
+set lin 300 pagesize 50000
+col gb for 9999.99
+define tab='OGG.CLE_TAB_20141228_QUERY'
+
+select 'echo "'||STR||&tar_str||'">>'||&exp_file||''||to_char(mod(rownum,4)+1)||'.sh  ##'||to_char(gb,'9999.99')||'GB' from (
+  select q'[ksh bcv_gg_auto_dat_owner_seq_query.sh -t &tab]' || q'[ -o ]' || OWNER || q'[ -s ]' || seq
+    ||q'[ -d DATAPUMP -p 4 -w /datapump/tempdmp]' STR, gb from (
+    select OWNER,SEQ,sum(gb) gb
+    from &tab
+    group by owner,seq
+    order by 3
+  )
+) order by gb;
+
+*/
+
+------------------------------
+#####vmstat 输出
+while true;do
+
+echo "----------------------`date`-----------------------------"
+echo "----------------------- ${ORACLE_SID}  ---------------------"
+sleep 1
+vmstat 1 10
+done;
+
+/*默认输出
+
+while true;do
+
+echo "----------------------- ${ORACLE_SID}  ---------------------"
+echo "-----------------------`date`-----------------------------"
+
+
+tail  -500  /var/adm/syslog/syslog.log | egrep -v 'sshd|GoldenGate|SQLAnywhere|lvmpud|above message repeats|sctl driver not|ftpd'
+bdf | egrep  'oracle|arch'
+netstat -s -p udp
+sleep 5
+echo ''
+echo ''
+echo ''
+echo ''
+
+ora tsfree
+echo ''
+echo ''
+echo ''
+echo ''
+
+ora event
+#ora hcost
+sleep 5
+echo ''
+echo ''
+echo ''
+echo ''
+
+vmstat 1 10
+#sar -v 1 10
+sleep 5
+echo ''
+echo ''
+echo ''
+echo ''
+
+
+#netstat -s | egrep "incomplete header|bad checksum|socket overflows" | grep -v 'discarded for bad checksum' | grep -v ' with bad checksum'
+
+
+echo ''
+echo ''
+echo ''
+echo ''
+done;
+
+
+*/
+
+
+【resize】
+如果时间够用则按步骤执行，如果非常紧急则直接做"resize datafile"步骤
+--索引表空间resize
+1.分析索引
+analyze index owner.index_name validate structure;
+2.查询索引碎片
+SELECT NAME,
+       del_lf_rows_len,
+       lf_rows_len,
+       (del_lf_rows_len / lf_rows_len) * 100
+  FROM index_stats
+3.合并碎片
+alter index owner.index_name coalesce;
+4.resize datafile --执行时间较快
+SELECT 'ALTER DATABASE DATAFILE ''' || t1.file_name || ''' RESIZE ' ||
+       (ceil(total_gb - free_gb) + 1)||'G;' AS used_gb
+  FROM (SELECT tablespace_name,
+               file_id,
+               file_name,
+               SUM(bytes) / 1024 / 1024 / 1024 total_gb
+          FROM dba_data_files
+         WHERE tablespace_name = 'YJ_IM_IND'
+         GROUP BY tablespace_name, file_id, file_name) t1,
+       (SELECT tablespace_name,
+               file_id,
+               SUM(bytes) / 1024 / 1024 / 1024 free_gb
+          FROM dba_free_space
+         WHERE tablespace_name = 'YJ_IM_IND'
+         GROUP BY tablespace_name, file_id) t2
+ WHERE t1.file_id = t2.file_id;
+USED_GB
+----------------------------------------------------------------------------------------------------
+ALTER DATABASE DATAFILE '+JMCRMDG/jmcrmdb/datafile/yj_im_ind.401.802490541' RESIZE 9G;
+ALTER DATABASE DATAFILE '+JMCRMDG/jmcrmdb/datafile/yj_im_ind.372.802491201' RESIZE 8G;
+ALTER DATABASE DATAFILE '+JMCRMDG/jmcrmdb/datafile/yj_im_ind.344.802488355' RESIZE 9G;
+ps:执行下面的语句查找更准确但是执行时间相当慢:
+ SELECT file_id, tablespace_name, SUM(bytes) / 1024 / 1024
+   FROM dba_extents
+  WHERE file_id IN (857, 858)
+  GROUP BY file_id, tablespace_name
+  ORDER BY 1;
+==============================================================================================
+--数据表空resize
+1.对表空间的表高水位检查
+SELECT owner,
+       table_name,
+       blocks * 8 / 1024 size_m,
+       (avg_row_len * num_rows + 24 * ini_trans) / 8096 / blocks * 100 pct
+  FROM dba_tables
+ WHERE table_name = 'T_SCE_OTHERNUMBERSEGMENTOFGD'
+   AND owner = 'ICDFL';
+2.对于较高的高水位
+alter table owner.table_name enable row movement;
+alter table owner.table_name shrink space;
+alter table owner.table_name disable row movement;
+exec dbms_stats.gather_table_stats('owner','table_name',estimate_percent=>10,method_opt=>'for all indexed columns size 1',degree=>16,cascade=>true,force=>true);
+3.resize datafile
+SELECT 'ALTER DATABASE DATAFILE ''' || t1.file_name || ''' RESIZE ' ||
+       (ceil(total_gb - free_gb) + 1)||'G;' AS used_gb
+  FROM (SELECT tablespace_name,
+               file_id,
+               file_name,
+               SUM(bytes) / 1024 / 1024 / 1024 total_gb
+          FROM dba_data_files
+         WHERE tablespace_name = 'YJ_IM_IND'
+         GROUP BY tablespace_name, file_id, file_name) t1,
+       (SELECT tablespace_name,
+               file_id,
+               SUM(bytes) / 1024 / 1024 / 1024 free_gb
+          FROM dba_free_space
+         WHERE tablespace_name = 'YJ_IM_IND'
+         GROUP BY tablespace_name, file_id) t2
+ WHERE t1.file_id = t2.file_id;
+USED_GB
+----------------------------------------------------------------------------------------------------
+ALTER DATABASE DATAFILE '+JMCRMDG/jmcrmdb/datafile/yj_im_ind.401.802490541' RESIZE 9G;
+ALTER DATABASE DATAFILE '+JMCRMDG/jmcrmdb/datafile/yj_im_ind.372.802491201' RESIZE 8G;
+ALTER DATABASE DATAFILE '+JMCRMDG/jmcrmdb/datafile/yj_im_ind.344.802488355' RESIZE 9G;
+三.
+select 'ALTER TABLESPACE '||TABLESPACE_NAME||'coalesce;' from dba_tablespaces
+==============*****************==============
+--需要进行收缩的表空间
+SET LINESIZE 250
+SET PAGESIZE 1000
+col tablespace_name for a25
+SELECT D.TABLESPACE_NAME,SPACE "SUM_SPACE(M)",BLOCKS SUM_BLOCKS,SPACE - NVL(FREE_SPACE, 0) "USED_SPACE(M)",
+ROUND((1 - NVL(FREE_SPACE, 0) / SPACE) * 100, 2) "USED_RATE(%)", FREE_SPACE "FREE_SPACE(M)"
+FROM (SELECT TABLESPACE_NAME, ROUND(SUM(BYTES) / (1024 * 1024), 2) SPACE, SUM(BLOCKS) BLOCKS
+FROM DBA_DATA_FILES GROUP BY TABLESPACE_NAME) D,
+(SELECT TABLESPACE_NAME, ROUND(SUM(BYTES) / (1024 * 1024), 2) FREE_SPACE
+FROM DBA_FREE_SPACE GROUP BY TABLESPACE_NAME) F
+WHERE D.TABLESPACE_NAME = F.TABLESPACE_NAME(+)
+and D.tablespace_name in (
+'JM_YY_IND',
+'JMCRMREP_IND',
+'JM_YY_DATA'
+)
+ORDER BY "USED_RATE(%)" DESC;
+TABLESPACE_NAME | SUM_SPACE(M) | SUM_BLOCKS | USED_SPACE(M) | USED_RATE(%) | FREE_SPACE(M)
+------------------------- | -------------------- | -------------------- | -------------------- | -------------------- | --------------------
+JMCRMREP_IND | 92160 | 11796480 | 3 | 0 | 92157
+JM_YY_IND | 122880 | 15728640 | 4 | 0 | 122876
+JM_YY_DATA | 122880 | 15728640 | 4 | 0 | 122876
+--查询这些表空间内是否有对象存在
+10:46:02 sys@jmrptdb1(gdcrm-rptdb1)> set lin 130 pagesize 999
+10:46:11 sys@jmrptdb1(gdcrm-rptdb1)> col owner for a15
+10:46:11 sys@jmrptdb1(gdcrm-rptdb1)> col segment_name for a30
+10:46:11 sys@jmrptdb1(gdcrm-rptdb1)> col partition_name for a30
+10:46:11 sys@jmrptdb1(gdcrm-rptdb1)>
+10:46:11 sys@jmrptdb1(gdcrm-rptdb1)> select owner,segment_name,partition_name,bytes/1024/1024 bytes_M
+10:46:11 2 from dba_segments
+10:46:11 3 where tablespace_name in (
+10:46:11 4 'JMCRMREP_IND',
+10:46:11 5 'ZH_IBHIS_DATA',
+10:46:11 6 'JM_YY_DATA'
+10:46:11 7 ) order by 1;
+no rows selected
+Elapsed: 00:00:00.40
+10:46:12 sys@jmrptdb1(gdcrm-rptdb1)>
+--查询这些表空间的数据文件及其大小
+col FILE_NAME for a62
+select FILE_NAME,FILE_ID,TABLESPACE_NAME,BYTES/1024/1024/1024, STATUS from dba_data_files where TABLESPACE_NAME in ('JM_YY_IND',
+'JMCRMREP_IND',
+'ZH_IBHIS_DATA',
+'JM_YY_DATA'
+) order by TABLESPACE_NAME;
+FILE_NAME | FILE_ID | TABLESPACE_NAME | BYTES/1024/1024/1024 | STATUS
+-------------------------------------------------------------- | ----------- | ---------------------- | -------------------- | ---------
++JMBSSRPTDG/jmrptdb/datafile/jmcrmrep_ind.268.804037563 | 16 | JMCRMREP_IND | 30 | AVAILABLE
++JMBSSRPTDG/jmrptdb/datafile/jmcrmrep_ind.269.804037463 | 9 | JMCRMREP_IND | 30 | AVAILABLE
++JMBSSRPTDG/jmrptdb/datafile/jmcrmrep_ind.267.804037687 | 17 | JMCRMREP_IND | 30 | AVAILABLE
++JMCRMRPTDG/jmrptdb/datafile/jm_yy_data.269.817903497 | 25 | JM_YY_DATA | 30 | AVAILABLE
++JMCRMRPTDG/jmrptdb/datafile/jm_yy_data.270.817903437 | 24 | JM_YY_DATA | 30 | AVAILABLE
++JMCRMRPTDG/jmrptdb/datafile/jm_yy_data.264.817903557 | 26 | JM_YY_DATA | 30 | AVAILABLE
++JMCRMRPTDG/jmrptdb/datafile/jm_yy_data.263.817903623 | 28 | JM_YY_DATA | 30 | AVAILABLE
++JMCRMRPTDG/jmrptdb/datafile/jm_yy_ind.262.817903683 | 29 | JM_YY_IND | 30 | AVAILABLE
++JMCRMRPTDG/jmrptdb/datafile/jm_yy_ind.261.817903745 | 31 | JM_YY_IND | 30 | AVAILABLE
++JMCRMRPTDG/jmrptdb/datafile/jm_yy_ind.260.817903803 | 32 | JM_YY_IND | 30 | AVAILABLE
++JMCRMRPTDG/jmrptdb/datafile/jm_yy_ind.259.817903859 | 33 | JM_YY_IND | 30 | AVAILABLE
+11 rows selected.
+--确认当前实例为JMRPTDB1实例
+select instance_name from gv$instance;
+--执行收缩语句
+alter /* AP_HW_20140107_2766842 */ database datafile '+JMBSSRPTDG/jmrptdb/datafile/jmcrmrep_ind.268.804037563' resize 1G;
+alter /* AP_HW_20140107_2766842 */ database datafile '+JMBSSRPTDG/jmrptdb/datafile/jmcrmrep_ind.269.804037463' resize 1G;
+alter /* AP_HW_20140107_2766842 */ database datafile '+JMBSSRPTDG/jmrptdb/datafile/jmcrmrep_ind.267.804037687' resize 1G;
+alter /* AP_HW_20140107_2766842 */ database datafile '+JMCRMRPTDG/jmrptdb/datafile/jm_yy_data.269.817903497' resize 2m;
+alter /* AP_HW_20140107_2766842 */ database datafile '+JMCRMRPTDG/jmrptdb/datafile/jm_yy_data.270.817903437' resize 2m;
+alter /* AP_HW_20140107_2766842 */ database datafile '+JMCRMRPTDG/jmrptdb/datafile/jm_yy_data.264.817903557' resize 2m;
+alter /* AP_HW_20140107_2766842 */ database datafile '+JMCRMRPTDG/jmrptdb/datafile/jm_yy_data.263.817903623' resize 2m;
+alter /* AP_HW_20140107_2766842 */ database datafile '+JMCRMRPTDG/jmrptdb/datafile/jm_yy_ind.262.817903683' resize 2m;
+alter /* AP_HW_20140107_2766842 */ database datafile '+JMCRMRPTDG/jmrptdb/datafile/jm_yy_ind.261.817903745' resize 2m;
+alter /* AP_HW_20140107_2766842 */ database datafile '+JMCRMRPTDG/jmrptdb/datafile/jm_yy_ind.260.817903803' resize 2m;
+alter /* AP_HW_20140107_2766842 */ database datafile '+JMCRMRPTDG/jmrptdb/datafile/jm_yy_ind.259.817903859' resize 2m;
+======================*******************=====================================
+
+
+应急库因无合适索引而导致同步缓慢的处理例子
+info all
+REPLICAT    RUNNING     R_ZX_50P    01:34:02      00:05:29   
+
+1、确认什么SQL导致同步缓慢
+h7sd03dd:/oradata/arch01/ogg#ps -ef|grep  R_ZX_50P
+  oracle 21249 21099  0 11:25:07 pts/4     0:00 grep R_ZX_50P
+  oracle 18084 17854  0  Sep 13  ?         5:54 /oradata/arch01/ogg/replicat PARAMFILE /oradata/arch01/ogg/dirprm/R_ZX_50P.prm REPORTFILE /oradata/arch01/ogg/dirrpt/R_ZX_50P.r
+
+h7sd03dd:/oradata/arch01/ogg#ps -ef|grep  18084
+  oracle 21290 21099  0 11:25:15 pts/4     0:00 grep 18084
+  oracle 18084 17854  0  Sep 13  ?         5:54 /oradata/arch01/ogg/replicat PARAMFILE /oradata/arch01/ogg/dirprm/R_ZX_50P.prm REPORTFILE /oradata/arch01/ogg/dirrpt/R_ZX_50P.r
+  oracle 18085 18084 255  Sep 13  ?        177:29 oracleWRES (DESCRIPTION=(LOCAL=YES)(ADDRESS=(PROTOCOL=beq)))
+
+col sname for a5;
+col pname for a5;
+col machine for a25;
+col sprogram for a30;
+col pprogram for a30;
+col event for a40;
+set line 800 pagesize 200;
+select s.sid,s.serial#,s.STATUS,s.username sname,nvl(s.sql_id,s.prev_sql_id) sql_id,s.program sprogram,s.event,p.spid,p.username pname,p.program pprogram
+from v$session s,v$process p
+where s.paddr=p.addr and p.spid='&spid';
+
+Enter value for spid: 18085
+old   3: where s.paddr=p.addr and p.spid='&spid'
+new   3: where s.paddr=p.addr and p.spid='18085'
+
+       SID    SERIAL# STATUS   SNAME SQL_ID        SPROGRAM                       EVENT                                    SPID         PNAME PPROGRAM
+---------- ---------- -------- ----- ------------- ------------------------------ ---------------------------------------- ------------ ----- ------------------------------
+      7912      15137 ACTIVE   OGG   g3m6f5wx4rvau replicat@h7sd03dd (TNS V1-V3)  SQL*Net message from client              18085        oracl oracle@h7sd03dd
+
+g3m6f5wx4rvau                                                                                                                                  e
+g3m6f5wx4rvau
+2、分析SQL语句
+SQL> !ora plan g3m6f5wx4rvau
+
+Session altered.
+
+
+PLAN_TABLE_OUTPUT
+------------------------------------------------------------------------------------------------------------------------------------------------------
+SQL_ID  g3m6f5wx4rvau, child number 0
+-------------------------------------
+DELETE FROM "DBMARKETADM"."MK_IMPORTCUST_TMP"  WHERE "PHONE_NO" = :b0 AND
+"SEQ_NO" = :b1 AND "ACT_ID" = :b2 AND "CUST_GROUP_ID" = :b3 AND "OPER_NO" = :b4
+AND "OPER_NAME" = :b5 AND "BUSI_TYPE" is NULL AND "BUSI_ID" is NULL AND ROWNUM =
+1
+
+Plan hash value: 3894352914
+
+-----------------------------------------------------------------------------------------
+| Id  | Operation           | Name              | Rows  | Bytes | Cost (%CPU)| Time     |
+-----------------------------------------------------------------------------------------
+|   0 | DELETE STATEMENT    |                   |       |       |  1462 (100)|          |
+|   1 |  DELETE             | MK_IMPORTCUST_TMP |       |       |            |          |
+|*  2 |   COUNT STOPKEY     |                   |       |       |            |          |
+|*  3 |    TABLE ACCESS FULL| MK_IMPORTCUST_TMP |     1 |    85 |  1462   (2)| 00:00:18 |
+-----------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   2 - filter(ROWNUM=1)
+   3 - filter(("PHONE_NO"=:B0 AND "SEQ_NO"=:B1 AND "OPER_NO"=:B4 AND
+              "OPER_NAME"=:B5 AND "ACT_ID"=:B2 AND "CUST_GROUP_ID"=:B3 AND "BUSI_TYPE" IS NULL
+              AND "BUSI_ID" IS NULL))
+
+
+26 rows selected.
+
+
+SQL> !ora idxdesc MK_IMPORTCUST_TMP DBMARKETADM
+
+Session altered.
+
+
+INDEX_NAME                               INDEX_COL                      INDEX_TYPE             PAR
+---------------------------------------- ------------------------------ ---------------------- ---
+DBMARKETADM.IDX_IMPORTCUST_TMP_GROUP     CUST_GROUP_ID                  NORMAL-NONUNIQUE       NO
+DBMARKETADM.IDX_IMPORTCUST_TMP_PHONE_NO  SEQ_NO                         NORMAL-NONUNIQUE       NO
+
+
+
+SQL> select count(distinct PHONE_NO),count(*) from "DBMARKETADM"."MK_IMPORTCUST_TMP";
+
+COUNT(DISTINCTPHONE_NO)   COUNT(*)
+----------------------- ----------
+                 528923     528938
+
+DBMARKETADM.MK_IMPORTCUST_TMP
+
+3、分析rpt文件
+从rpt可以看到同步速度十分缓慢，一秒钟只能处理6条记录
+              130896 records processed as of 2014-09-15 11:07:40 (rate 0,delta 6)
+              131266 records processed as of 2014-09-15 11:08:40 (rate 0,delta 6)
+              131638 records processed as of 2014-09-15 11:09:40 (rate 0,delta 6)
+              132015 records processed as of 2014-09-15 11:10:41 (rate 0,delta 6)
+              132393 records processed as of 2014-09-15 11:11:41 (rate 0,delta 6)
+              132766 records processed as of 2014-09-15 11:12:41 (rate 0,delta 6)
+              133141 records processed as of 2014-09-15 11:13:41 (rate 0,delta 6)
+              133516 records processed as of 2014-09-15 11:14:41 (rate 0,delta 6)
+              133891 records processed as of 2014-09-15 11:15:41 (rate 0,delta 6)
+              134267 records processed as of 2014-09-15 11:16:41 (rate 0,delta 6)
+              134650 records processed as of 2014-09-15 11:17:41 (rate 0,delta 6)
+              135033 records processed as of 2014-09-15 11:18:41 (rate 0,delta 6)
+
+4、停止OGG
+尝试STOP命令停止OGG
+stop R_ZX_50P
+
+一直没停下来，于是强行终止
+kill R_ZX_50P
+
+--确认此表涉及的事务已经终止
+set pages 130;
+set lines 1300;
+col object_name for a20;
+col machine for a20;
+col program for a20;
+col killid for a30;
+col os_pid format a20;
+select object_name ,machine ,s.program ,
+s.sid||','||s.serial# as killid,
+p.spid as os_pid ,
+s.sql_address,
+l.locked_mode,
+s.username,
+s.process,
+s.sql_id
+from v$locked_object l,
+dba_objects o ,v$session s ,v$process p
+where l.object_id=o.object_id and l.session_id=s.sid
+and s.paddr=p.addr
+and object_name=upper('&tablename') and o.owner=upper('&owner')
+order by 1
+;
+
+Enter value for tablename: MK_IMPORTCUST_TMP
+Enter value for owner: DBMARKETADM
+old  13: and object_name=upper('&tablename') and o.owner=upper('&owner')
+new  13: and object_name=upper('MK_IMPORTCUST_TMP') and o.owner=upper('DBMARKETADM')
+
+no rows selected
+
+
+检查确认进程已经终止
+h7sd03dd:/oradata/arch01/ogg#ps -ef|grep 18085
+  oracle 29402 21099  0 11:50:42 pts/4     0:00 grep 18085
+
+5、创建索引并统计收集
+SQL> CREATE INDEX "OGG"."MK_IMPORTCUST_TMP_PHONE_NO" ON "DBMARKETADM"."MK_IMPORTCUST_TMP" ("PHONE_NO")  parallel 32;
+Index created.
+
+SQL>  ALTER INDEX "OGG"."MK_IMPORTCUST_TMP_PHONE_NO" noparallel;
+Index altered.
+
+SQL> exec DBMS_STATS.GATHER_TABLE_STATS(ownname=>'DBMARKETADM',tabname=>'MK_IMPORTCUST_TMP',ESTIMATE_PERCENT=>10,method_opt=>'for all columns size 1',cascade=>true,force=>true,degree=>8,no_invalidate=>FALSE);
+PL/SQL procedure successfully completed.
+
+6、重启进程，观察rpt，可看到速度提升
+99332 records processed as of 2014-09-15 11:39:42 (rate 1655,delta 1655)
+
+
+---详单查询库1
+ssh oracle@10.153.179.41
+/oracle/app/oracle/product/11.2.0/dbhome_1/log/diag/tnslsnr/h7sd05da/db_listener_1622/alert
+/oracle/app/oracle/product/11.2.0/dbhome_1/log/diag/tnslsnr/h7sd05da/db_listener_1621/trace
+/oracle/app/oracle/product/11.2.0/dbhome_1/log/diag/tnslsnr/h7sd05da/db_listener_1621/alert
+/oracle/app/oracle/product/11.2.0/dbhome_1/log/diag/tnslsnr/h7sd05da/db_listener_1622/trace/db_listener_1622.log
+grid
+/oracle/app/11.2.0/grid/log/diag/tnslsnr/h7sd05da/listener/trace
+/oracle/app/11.2.0/grid/log/diag/tnslsnr/h7sd05da/listener/alert
+
+---详单查询库2
+ssh oracle@10.153.179.42
+/oracle/app/oracle/product/11.2.0/dbhome_1/log/diag/tnslsnr/h7sd06da/db_listener_1622/trace
+/oracle/app/oracle/product/11.2.0/dbhome_1/log/diag/tnslsnr/h7sd06da/db_listener_1622/alert
+/oracle/app/oracle/product/11.2.0/dbhome_1/log/diag/tnslsnr/h7sd06da/db_listener_1621/trace
+/oracle/app/oracle/product/11.2.0/dbhome_1/log/diag/tnslsnr/h7sd06da/db_listener_1621/alert
+grid
+/oracle/app/grid/diag/tnslsnr/h7sd06da/listener/alert
+/oracle/app/grid/diag/tnslsnr/h7sd06da/listener/trace
+/oracle/app/11.2.0/grid/log/diag/tnslsnr/h7sd06da/listener_scan1/alert
+
+----历史sql_id
+select SQL_ID,SAMPLE_TIME from dba_hist_active_sess_history where SESSION_ID=5401;
+
+
+----拼接表中的列
+select listagg(decode(data_type,'DATE',
+'to_char('||column_name||',''yyyy-mm-dd hh24:mi:ss'')',column_name),'||''|''||') within group (order by column_id) x
+from dba_tab_cols where owner='SYS' and table_name='DBA_TABLES';
+
+select OWNER||'|'||TABLE_NAME||'|'||TABLESPACE_NAME||'|'||CLUSTER_NAME||'|'||IOT_NAME||'|'||STATUS||'|'||PCT_FREE||'|'||PCT_USED||'|'||INI_TRANS||'|'||MAX_TRANS||'|'||INITIAL_EXTENT||'|'||NEXT_EXTENT||'|'||MIN_EXTENTS||'|'||MAX_EXTENTS||'|'||PCT_INCREASE||'|'||FREELISTS||'|'||FREELIST_GROUPS||'|'||LOGGING||'|'||BACKED_UP||'|'||NUM_ROWS||'|'||BLOCKS||'|'||EMPTY_BLOCKS||'|'||AVG_SPACE||'|'||CHAIN_CNT||'|'||AVG_ROW_LEN||'|'||AVG_SPACE_FREELIST_BLOCKS||'|'||NUM_FREELIST_BLOCKS||'|'||DEGREE||'|'||INSTANCES||'|'||CACHE||'|'||TABLE_LOCK||'|'||SAMPLE_SIZE||'|'||to_char(LAST_ANALYZED,'yyyy-mm-dd hh24:mi:ss')||'|'||PARTITIONED||'|'||IOT_TYPE||'|'||TEMPORARY||'|'||SECONDARY||'|'||NESTED||'|'||BUFFER_POOL||'|'||FLASH_CACHE||'|'||CELL_FLASH_CACHE||'|'||ROW_MOVEMENT||'|'||GLOBAL_STATS||'|'||USER_STATS||'|'||DURATION||'|'||SKIP_CORRUPT||'|'||MONITORING||'|'||CLUSTER_OWNER||'|'||DEPENDENCIES||'|'||COMPRESSION||'|'||COMPRESS_FOR||'|'||DROPPED||'|'||READ_ONLY||'|'||SEGMENT_CREATED||'|'||RESULT_CACHE
+from dba_tables;
+
+----更改时间输出格式
+alter session set nls_date_format='yyyy-mm-dd hh24:mi:ss';   
+alter session set nls_timestamp_format='DD-MON-RR HH.MI.SSXFF AM';
+alter session set nls_timestamp_tz_format='DD-MON-RR HH.MI.SSXFF AM';
+
+--更改当前current_schema
+alter session set current_schema=OGG;
+
+
+
+http://docs.oracle.com/cd/E11882_01/server.112/e41084/functions183.htm#SQLRF06116
+SYS_CONNECT_BY_PATH
+
+--4A账号跳转密码
+cmQmek3G
+
+新渠道支撑库            10.153.178.47/10.153.178.48                 策略没有
+
+服务开通库                10.153.177.25/10.153.177.26                只有2G左右释放
+新ITIL库                    10.153.246.81/10.153.246.82                drop/delete
+
+
+新渠道经理库            10.153.177.55/10.153.177.56                渠道酬金
+
+++++各目录使用率
+/dev/vx/dsk/wnpart_oradatadg/lv_wnpart_data01
+                   876609536 837534040 38770584   96% /wnpartdata01
+/dev/vx/dsk/wnpart_oradatadg/lv_wnpart_data02
+                   876609536 859606112 16870952   98% /wnpartdata02
+/dev/vx/dsk/wnpart_oradatadg/lv_wnpart_data03
+                   876609536 849933104 26468264   97% /wnpartdata03
+/dev/vx/dsk/wnpart_oradatadg1/lv_wnpart_data04
+                   1073741824 1036684136 36768536   97% /wnpartdata04
+/dev/vx/dsk/wnpart_oradatadg1/lv_wnpart_data05
+                   1073741824 1049266808 24284040   98% /wnpartdata05
+/dev/vx/dsk/wnpart_oradatadg1/lv_wnpart_data06
+                   1073741824 1048218272 25324384   98% /wnpartdata06
+/dev/vx/dsk/wnpart_oradatadg2/lv_wnpart_data07
+                   1073741824 1040878200 32607112   97% /wnpartdata07
+/dev/vx/dsk/wnpart_oradatadg2/lv_wnpart_data08
+                   1073741824 1037516904 35942648   97% /wnpartdata08
+/dev/vx/dsk/wnpart_oradatadg2/lv_wnpart_data09
+                   1073741824 1034586760 38849400   96% /wnpartdata09
+
+++++表空间使用率
+
+TABLESPACE_NAME      SUM_SPACE(M) USED_SPACE(M) USED_RATE(%) FREE_SPACE(M) REA_USED_RATE(%) REA_FREE_SPACE(M)
+-------------------- ------------ ------------- ------------ ------------- ---------------- -----------------
+TBS_REPORT                 835583        766545        91.74         69038            99.84           1319.88
+TBS_DATA                  4301788       3638962        84.59        662826            87.16         552364.43
+D_NLCOMP_STA_02            425984        351075        82.41         74909            98.97           4368.31
+TBS_CHN_SCV                499712        380711        76.19        119001            77.73         111302.07
+I_NLCOMP_STA_01             40960         27052        66.05         13908            66.05          13906.87
+TBS_DATA_IDX              1542144        892557        57.88        649587            60.73         605584.75
+D_NLCOMP_PARA               65536         37282        56.89         28254            57.49          27858.38
+D_NLCOMP_STA_01            147456         83756         56.8         63700            91.02          13242.25
+TBS_CHN_SCV_IDX            204800         98296           48        106504               48          106503.5
+SYSAUX                       8192          2277         27.8          5915
+SYSTEM                      54272          7804        14.38         46468
+TBS_CHNMGR                  53248          7140        13.41         46109            14.09          45743.37
+I_NLCOMP_STA_02             16384           861         5.25         15523
+UNDOTBS1                    94208          3547         3.77         90661
+UNDOTBS2                    81920          1984         2.42         79936
+I_NLCOMP_PARA               16384           116          .71         16268
+TBL_PW_DATA                  8192            22          .26          8170
+USERS                        4096             9          .22          4087              .22           4086.82
+TIVOLI                       1024             1           .1          1023
+
+
+--查询占用特定表空间最多的段（Top20）
+col owner for a16
+col segment_type for a16
+col segment_name for a32
+col sum_MB for 999999.99
+select * from (
+  select owner,segment_name,segment_type,sum(bytes)/1024/1024 sum_MB
+  from dba_segments
+  where tablespace_name='TBS_LNFP_DATA'
+  group by owner,segment_type,segment_name
+  order by 4 desc
+)where rownum<=50;
+
+3 2 1
+OWNER            SEGMENT_NAME                     SEGMENT_TYPE         SUM_MB
+---------------- -------------------------------- ---------------- ----------
+CHNAPPDB         MD_USERBILL_201411_11            TABLE               9429.00
+CHNAPPDB         MD_USERBILL_201411_11_BAK        TABLE               9422.00
+CHNAPPDB         MD_USERBILL_201412_11            TABLE               9352.00
+CHNAPPDB         MD_USERBILL_201412_11_BAK        TABLE               9314.00
+CHNAPPDB         MI_201501_30110_11               TABLE               6090.81
+CHNAPPDB         MI_201503_30501_11               TABLE               5666.88
+CHNAPPDB         MI_201409_30501_11               TABLE               5623.31
+CHNAPPDB         MI_201410_30501_11               TABLE               5611.38
+CHNAPPDB         MI_201502_30501_11               TABLE               5609.00
+CHNAPPDB         MI_201501_30501_11               TABLE               5486.94
+CHNAPPDB         MI_201408_30501_11BAK            TABLE               5479.00
+CHNAPPDB         MI_201411_30501_11               TABLE               5471.50
+CHNAPPDB         MI_201407_30501_11               TABLE               5410.38
+CHNAPPDB         MI_201412_30501_11               TABLE               5403.00
+CHNAPPDB         MI_201406_30501_11               TABLE               5398.63
+CHNAPPDB         MI_201403_30501_11               TABLE               4968.63
+CHNAPPDB         MI_201404_30501_11               TABLE               4938.69
+CHNAPPDB         MI_201503_30110_11               TABLE               4893.44
+CHNAPPDB         MI_201405_30501_11               TABLE               4864.00
+CHNAPPDB         MI_201405_30501_11BAK            TABLE               4864.00
+CHNAPPDB         MI_201409_30110_11               TABLE               4831.69
+CHNAPPDB         DCHNCUSTMSG_201302_17            TABLE               4611.00
+CHNAPPDB         MI_201412_30110_11               TABLE               4550.19
+CHNAPPDB         MI_201502_30110_11               TABLE               4424.25
+CHNAPPDB         MI_201411_30110_11               TABLE               4394.00
+CHNAPPDB         MI_201407_30110_11               TABLE               4091.44
+CHNAPPDB         MI_201408_30110_11               TABLE               4050.88
+CHNAPPDB         MI_201406_30110_11               TABLE               3983.63
+CHNAPPDB         MI_201405_30110_11               TABLE               3979.81
+CHNAPPDB         MI_201503_30303                  TABLE               3935.75
+CHNAPPDB         MI_201412_80001                  TABLE               3888.75
+CHNAPPDB         MI_201502_30303                  TABLE               3810.25
+CHNAPPDB         MI_201411_80001                  TABLE               3795.06
+CHNAPPDB         MI_201501_30303                  TABLE               3729.75
+CHNAPPDB         MI_201410_80001                  TABLE               3715.75
+CHNAPPDB         TEST_20130726                    TABLE               3648.00
+CHNAPPDB         MI_201409_80001                  TABLE               3638.81
+CHNAPPDB         MI_201412_30303                  TABLE               3606.94
+CHNAPPDB         MI_201408_80001                  TABLE               3550.63
+CHNAPPDB         MI_201410_30110_11               TABLE               3479.38
+CHNAPPDB         MI_201410_30110_11_BAK           TABLE               3463.00
+CHNAPPDB         MI_201503_80001                  TABLE               3462.69
+CHNAPPDB         MI_201407_80001                  TABLE               3433.69
+CHNAPPDB         MI_201403_30110_11               TABLE               3405.94
+CHNAPPDB         MI_201404_30110_11               TABLE               3400.50
+
+MD_USERBILL_2014
+col owner for a16
+col segment_type for a16
+col segment_name for a32
+col sum_MB for 999999.99
+select * from (
+  select owner,segment_name,segment_type,sum(bytes)/1024/1024 sum_MB
+  from dba_segments
+  where tablespace_name='TBS_DATA'and segment_name like 'MD_USERBILL_2014%'
+  group by owner,segment_type,segment_name
+  order by 4 desc
+)where rownum<=50;
+
+
+--查询序列情况
+select SEQUENCE_OWNER,SEQUENCE_NAME,INCREMENT_BY,CACHE_SIZE from dba_SEQUENCEs where SEQUENCE_OWNER ='ZJYY' and SEQUENCE_NAME='S_SP_TRANS_SEQ';
+
+创建序列
+--create SEQUENCE seq
+increment by 1
+start with 1
+nocycle
+cache 2000
+order;
+
+--重建SEQUENCE(未考虑nocache)
+select 'CREATE SEQUENCE '||SEQUENCE_OWNER||'.'||SEQUENCE_NAME||' MINVALUE '||to_char(MIN_VALUE)||' MAXVALUE '||to_char(MAX_VALUE)||' INCREMENT BY '||to_char(INCREMENT_BY)||' START WITH '||to_char(LAST_NUMBER+CACHE_SIZE*10)||' CACHE '||CACHE_SIZE||case when ORDER_FLAG='N' then ' NOORDER ' else ' ORDER ' end||case when CYCLE_FLAG='N' then ' NOCYCLE;' else ' CYCLE;' end SQL from dba_SEQUENCEs where SEQUENCE_OWNER='FSZW' and sequence_name='SP_SUBSCRIBER_RELATION_SEQ';
+
+--从生产库获取序列定义，
+select 'CREATE SEQUENCE '||SEQUENCE_OWNER||'.'||SEQUENCE_NAME||' MINVALUE '||to_char(MIN_VALUE)||' MAXVALUE '||to_char(MAX_VALUE)||' INCREMENT BY '||to_char(INCREMENT_BY)||' START WITH '||to_char(LAST_NUMBER+5000)||' CACHE '||CACHE_SIZE||case when ORDER_FLAG='N' then ' NOORDER ' else ' ORDER ' end||case when CYCLE_FLAG='N' then ' NOCYCLE;' else ' CYCLE;' end SQL from dba_SEQUENCEs where SEQUENCE_OWNER='SZZW' and CACHE_SIZE<>0;
+
+
+
+uedbet
+
+------------------------------------------------------------------------------------------------------
+--数据清理平台
+http://10.243.124.43:8888/shsnc/
+
+----2015/10/13 8:53:00
+######校验两边数据量是否相同######################
+
+++++源端
+----生成数据量检查sql
+for i in `ls -lrt CHNAPPDB_20151008*log|awk '{print $9}'|sort`
+do
+cat $i|grep -v ORA-31655|grep exported|awk '{print "select '\''aaa'\'','\''"$4"'\'',count(*) from " $4";"}'|sort -rn >$i.sql
+done
+
+for i in `ls -lrt CHNAPPDB_20151008*sql|awk '{print $9}'`
+do
+echo "exit">>$i
+done
+
+
+----nohup查询数据量
+for i in `ls -lrt CHNAPPDB_20151008*sql|awk '{print $9}'`
+do
+echo "nohup sqlplus -S '/as sysdba' @"$i" > "$i".out &"
+done
+
+nohup sqlplus -S '/as sysdba' @CHNAPPDB_20151008_084303080.log.sql > CHNAPPDB_20151008_084303080.log.sql.out &
+nohup sqlplus -S '/as sysdba' @CHNAPPDB_20151008_141149642.log.sql > CHNAPPDB_20151008_141149642.log.sql.out &
+nohup sqlplus -S '/as sysdba' @CHNAPPDB_20151008_140519370.log.sql > CHNAPPDB_20151008_140519370.log.sql.out &
+nohup sqlplus -S '/as sysdba' @CHNAPPDB_20151008_140340786.log.sql > CHNAPPDB_20151008_140340786.log.sql.out &
+nohup sqlplus -S '/as sysdba' @CHNAPPDB_20151008_140223449.log.sql > CHNAPPDB_20151008_140223449.log.sql.out &
+nohup sqlplus -S '/as sysdba' @CHNAPPDB_20151008_135840678.log.sql > CHNAPPDB_20151008_135840678.log.sql.out &
+nohup sqlplus -S '/as sysdba' @CHNAPPDB_20151008_135518905.log.sql > CHNAPPDB_20151008_135518905.log.sql.out &
+nohup sqlplus -S '/as sysdba' @CHNAPPDB_20151008_135225703.log.sql > CHNAPPDB_20151008_135225703.log.sql.out &
+nohup sqlplus -S '/as sysdba' @CHNAPPDB_20151008_134952268.log.sql > CHNAPPDB_20151008_134952268.log.sql.out &
+
++++++历史库
+----生成数据量检查sql
+for i in `ls -lrt WZPARTDB_20151008*log|awk '{print $9}'|sort`
+do
+cat $i|grep imported|awk '{print "select '\''aaa'\'','\''"$4"'\'',count(*) from " $4";"}'|sort -rn >$i.sql
+done
+
+for i in `ls -lrt WZPARTDB_20151008*sql|awk '{print $9}'`
+do
+echo "exit">>$i
+done
+
+----nohup查询数据量
+for i in `ls -lrt WZPARTDB_20151008*sql|awk '{print $9}'`
+do
+echo "nohup sqlplus -S '/as sysdba' @"$i" > "$i".out &"
+done
+
+nohup sqlplus -S '/as sysdba' @WZPARTDB_20151008_084424714.log.sql > WZPARTDB_20151008_084424714.log.sql.out &
+nohup sqlplus -S '/as sysdba' @WZPARTDB_20151008_141246751.log.sql > WZPARTDB_20151008_141246751.log.sql.out &
+nohup sqlplus -S '/as sysdba' @WZPARTDB_20151008_140846395.log.sql > WZPARTDB_20151008_140846395.log.sql.out &
+nohup sqlplus -S '/as sysdba' @WZPARTDB_20151008_140442264.log.sql > WZPARTDB_20151008_140442264.log.sql.out &
+nohup sqlplus -S '/as sysdba' @WZPARTDB_20151008_140305117.log.sql > WZPARTDB_20151008_140305117.log.sql.out &
+nohup sqlplus -S '/as sysdba' @WZPARTDB_20151008_140104645.log.sql > WZPARTDB_20151008_140104645.log.sql.out &
+nohup sqlplus -S '/as sysdba' @WZPARTDB_20151008_135727609.log.sql > WZPARTDB_20151008_135727609.log.sql.out &
+nohup sqlplus -S '/as sysdba' @WZPARTDB_20151008_135403056.log.sql > WZPARTDB_20151008_135403056.log.sql.out &
+nohup sqlplus -S '/as sysdba' @WZPARTDB_20151008_135115070.log.sql > WZPARTDB_20151008_135115070.log.sql.out &
+nohup sqlplus -S '/as sysdba' @WZPARTDB_20151008_141427809.log.sql > WZPARTDB_20151008_141427809.log.sql.out &
+
+
+++++取出两段数据对比
+cat  CHNAPPDB_20151008*out|grep aaa|sort -n -k3 > sou.txt
+cat WZPARTDB_20151008*out|grep aaa|sort -n -k3>tar.txt
+
+
+
+######校验两边数据量是否相同#############
+
+
+cat sou.txt|awk '{print "truncate table " $2 ";" }'>trun.sql
+
+tail -1 sou.txt|awk '{print "truncate table " $2 ";" }'
+
+cat CHNAPPDB_20151112_064149306.log|grep exported|awk '{print $4}'
+
+cat CHNAPPDB_20151112_*log|grep exported|awk '{print "truncate table "$4";"}'>aaaa.sql
+
+################################
+grep estimation CHNAPPDB_20151008_*log|awk -F: '{print $3}'
+
+TBS_DATA                  4301788       3812105        88.62        489683
+TBS_DATA                  4301788       3783934        87.96        517854
+
+
+
+---------------------------------------------------------------------------------------------------
+
+strace -to /tmp/strace2.out sqlplus / as sysdba
+
+
+####并行
+desc v$px_session
+Name           
+----------------
+SADDR           session地址
+SID             session identifer
+SERIAL#         session serial num
+QCSID           并行协调进程的sid
+QCSERIAL#       并行协调进程的sid的序列号
+QCINST_ID       并行所在的instance id
+SERVER_GROUP    logical group
+SERVER_SET     
+SERVER#         
+DEGREE         
+REQ_DEGREE     
+
+
+--查询并行会话
+select QCSID,count(*)-1  from  v$px_session group by QCSID;
+
+--查找并行语句父进程
+select qcsid from v$px_session where sid in (1073,1022,873,919,1027,860);
+
+--并行语句
+select s.sql_id,p.sid from v$px_session  p,v$session s where s.sid=p.sid;
+
+
+
+--awk split
+vi b.txt
+zzzzz 001 002 003 004 005
+zzzzz 001 002 003 004 005
+zzzzz 001 002 003 004 005
+zzzzz 001 002 003 004 005
+zzzzz 001 002 003 004 005
+zzzzz 001 002 003 004 005
+zzzzz 001 002 003 004 005
+zzzzz 001 002 003 004 005
+zzzzz 001 002 003 004 005
+cat b.txt|grep zzzzz|awk '{{split ($0,A," ")}{print A[4]}}'
+
+-ASH----------------------------
+ select INSTANCE_NUMBER, to_char(SAMPLE_TIME,'yyyy-mm-dd hh24:mi') ,event,count(1) from
+dba_hist_active_sess_history where  INSTANCE_NUMBER =1   and
+ SAMPLE_TIME>= to_date('2015-08-26 11:30','yyyy-mm-dd hh24:mi') and SAMPLE_TIME<= to_date('2015-08-26 12:18','yyyy-mm-dd hh24:mi')
+ group by INSTANCE_NUMBER,to_char(SAMPLE_TIME,'yyyy-mm-dd hh24:mi') ,event   order by 1,2 asc;
+
+select  to_char(SAMPLE_TIME,'yyyy-mm-dd hh24:mi') ,event,SQL_ID,count(2) from v$active_session_history where 
+SAMPLE_TIME>= to_date('2021-10-19 06:22','yyyy-mm-dd hh24:mi') and SAMPLE_TIME<= to_date('2021-10-19 09:37','yyyy-mm-dd hh24:mi')
+group by to_char(SAMPLE_TIME,'yyyy-mm-dd hh24:mi') ,event,SQL_ID   order by 4 asc;
+
+
+dba_hist_active_sess_history
+v$active_session_history
+
+
+dba_hist_active_sess_history
+
+13.01
+13.02
+
+
+select SCHEMANAME from v$session a,v$sql b 
+where a.sql_id=b.sql_id and b.SQL_TEXT like 'select sys_context%';
+
+select sql_id  from dba_hist_active_sess_history where sql_id='74d9jtg02kmt9';
+
+select * from v$sqlarea t where t.PARSING_SCHEMA_NAME in ('用户名') order by t.LAST_ACTIVE_TIME desc
+
+select PARSING_SCHEMA_NAME from v$sqlarea  where SQL_ID='74d9jtg02kmt9';
+
+select a.USERNAME ,a.sql_id,a.PREV_SQL_ID
+from v$session a,v$sql b
+where a.sql_id=b.sql_id;
+
+select PARSING_SCHEMA_NAME from v$sql where sql_id='74d9jtg02kmt9';
+
+select USER_ID from v$active_session_history  where sql_id='74d9jtg02kmt9';
+
+select SCHEMANAME from v$session where  PREV_SQL_ID='74d9jtg02kmt9';
+   SELECT b.sid oracleID,
+           b.username 登录Oracle用户名,
+           b.serial#,
+           spid 操作系统ID,
+           paddr,
+           sql_text 正在执行的SQL,
+           b.machine 计算机名
+    FROM v$process a, v$session b, v$sqlarea c
+    WHERE a.addr = b.paddr
+       AND b.sql_hash_value = c.hash_value
+
+
+
+
+ select INSTANCE_NUMBER, to_char(SAMPLE_TIME,'yyyy-mm-dd hh24:mi') ,sql_id,count(1) from
+dba_hist_active_sess_history where  INSTANCE_NUMBER =2   and
+ SAMPLE_TIME>= to_date('2021-12-06 13:01','yyyy-mm-dd hh24:mi') and SAMPLE_TIME<= to_date('2021-12-06 13:02','yyyy-mm-dd hh24:mi')
+ group by INSTANCE_NUMBER,to_char(SAMPLE_TIME,'yyyy-mm-dd hh24:mi') ,sql_id   order by 1,2 asc;
+
+select SQL_TEXT from dba_hist_sqltext
+where sql_id in ('03k4xbh8huvxf',
+'15xt206p43up2',
+'1d2sfw7y7ggb8',
+'1q7db6pvhptz2',
+'23c2mam8yw8fn',
+'28bx4gwj03kcr',
+'2h1w8cwvunptb',
+'2wm6pw8pvrqvk',
+'31r69q2zxz556',
+'32ksqab420wnj',
+'3ntgmp6tgj04j',
+'3ssttcx1mzrj4',
+'43bhjxjjx8j81',
+'4kz27jmh8793d',
+'4qt75j50hbnhn',
+'5bk2tjv8uygj9',
+'5q5gurgpzzvx7',
+'5qkpufdhv769m',
+'69p26456upppq',
+'6afhbtumsx5y6',
+'6f0uzhncucn5z',
+'6uagg57bhgw94',
+'78x1a7rp5bj1m',
+'9cyap5t120anv',
+'a7v3d7s4dky20',
+'b9jmhyxzqgw4n',
+'bxmztvjms1v3q',
+'cbdurv2pghja7',
+'d76smfdgng8zy',
+'dkdmqss68b71x',
+'f1r76b3sbjm2u',
+'f2xmwzvmc3a8u',
+'f3qqymb9p0dcs',
+'fc521a1g9gn35',
+'fhdgrb6huzws4',
+'fqrjkk7arf2j0',
+'fwd6rzasjcjv5',
+'gqfkvdnptf0j4',
+'gtkpkkm1wy9yu',
+'gxg8vhxsh7p1x',
+'gyrxzsc7vsvru',
+'gz70uzgp8n9pz')
+
+
+
+
+1.osw数据
+
+oswprvtnet 心跳网数据
+oswmeminfo 内存数据
+
+top
+
+vmstat
+               s      p
+    代码段    10M    20k
+1   数据库段 100M    100k 
+
+r cpu
+b si so pi po
+
+ps
+
+cat ....dat | grep zzzz
+
+cat oracle11g03_ps_15.08.27.1000.dat | sed -n '/27 10:00:13 CST/,/27 10:00:30 CST/p'      |grep ora_p | wc -l  a.sh
+
+sh a.sh
+..
+..
+.
+.
+cat  w4sd13pa_ps_15.08.26.1200.dat | sed -n '/Wed Aug 26 12:42:21 EAT 2015/,/Wed Aug 26 12:42:51 EAT 2015/p' | grep LOCAL=NO | wc -l
+
+
+
+
+
+
+2.监听数据
+
+1.cat listener.log | sed -n '/26-AUG-2015 00:00:00/,/26-AUG-2015 23:00:01/p' > /tmp/22.osw/listener.26.log
+
+
+
+sed -n '/21-SEP-2015 11:38/,/22-SEP-2015 16:38/'p listener_h7sd05de.log >/tmp/listener.log.0922
+
+2.
+cat   listener.26.log | sed 's/\*.*SERVICE_NAME=/ /g;s/).*HOST=/ /g;s/).*$//g' >nor.log 
+
+cat   listener.26.log | sed 's/\*.*SERVICE_NAME=/ /g;s/).*HOST=/ /g;s/).*$//g'   | awk ' { print  $3 $4}' | sort | uniq -c
+--按照秒时间排序
+cat   /tmp/listener.26.log2 | sed 's/\*.*SERVICE_NAME=/ /g;s/).*HOST=/ /g;s/).*$//g'  | awk '{print $2}' | awk -F: '{print $1":"$2}' | sort  | uniq -c
+
+3.cat nor.log| sort  | uniq -c
+cat listener.26.log
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+13721057228
+5ypfg3qh
+
+
+wangtao@cheryfs.cn
+wangtao@cheryfs.cn
