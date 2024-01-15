@@ -1,4 +1,9 @@
-      38820 ARCHIVELOG                    1     2.19G      2.19G
+```
+select * from dual;
+```
+
+
+38820 ARCHIVELOG                    1     2.19G      2.19G
       38830 ARCHIVELOG                    1     4.00G      4.00G
       38842 ARCHIVELOG                    1    31.21G     31.21G
       38852 ARCHIVELOG                    1    35.16G     35.16G
@@ -13,9 +18,9 @@
 CREATE INDEX "GGS"."MK_IMPORTCUST_TMP_PHONE_NO" ON "DBMARKETADM"."MK_IMPORTCUST_TMP" ("PHONE_NO")  parallel 32;
 yum install net-tools
 
-V$RMAN_BACKUP_JOB_DETAILSÕ¹Ê¾ÁËrman±¸·İµÄÏà¹ØÏ¸½Ú¡£
-±ÈÈç£¬rman±¸·İ³ÖĞøÊ±¼ä¡¢rman±¸·İµÄÖ´ĞĞ´ÎÊı¡¢Ã¿Ò»´Îrman±¸·İ¹¤×÷µÄ×´Ì¬£¨failed or completed and so on£©£¬
-Ã¿´Îrman±¸·İµÄÆğÊ¼Ê±¼äµÈµÈ¡£
+V$RMAN_BACKUP_JOB_DETAILSå±•ç¤ºäº†rmanå¤‡ä»½çš„ç›¸å…³ç»†èŠ‚ã€‚
+æ¯”å¦‚ï¼Œrmanå¤‡ä»½æŒç»­æ—¶é—´ã€rmanå¤‡ä»½çš„æ‰§è¡Œæ¬¡æ•°ã€æ¯ä¸€æ¬¡rmanå¤‡ä»½å·¥ä½œçš„çŠ¶æ€ï¼ˆfailed or completed and so onï¼‰ï¼Œ
+æ¯æ¬¡rmanå¤‡ä»½çš„èµ·å§‹æ—¶é—´ç­‰ç­‰ã€‚
 
 SQL> desc sys.v$rman_backup_job_details
  Name                                      Null?    Type
@@ -49,8 +54,8 @@ SQL> desc sys.v$rman_backup_job_details
  TIME_TAKEN_DISPLAY                                 VARCHAR2(4000)
 
 
-¼¸¸öÖØÒªµÄÁĞ×´Ì¬Öµ£º
-INPUT_TYPE£º±¸·İµÄ·½Ê½£¬±ÈÈçÈ«¿â±¸·İ¡¢Êı¾İ¿âÔöÁ¿±¸·İ¡¢¹éµµ±¸·İµÈµÈ
+å‡ ä¸ªé‡è¦çš„åˆ—çŠ¶æ€å€¼ï¼š
+INPUT_TYPEï¼šå¤‡ä»½çš„æ–¹å¼ï¼Œæ¯”å¦‚å…¨åº“å¤‡ä»½ã€æ•°æ®åº“å¢é‡å¤‡ä»½ã€å½’æ¡£å¤‡ä»½ç­‰ç­‰
 DB FULL
 RECVR AREA
 DB INCR
@@ -60,7 +65,7 @@ ARCHIVELOG
 CONTROLFILE
 SPFILE
 
-STATUS:rman±¸·İjobµÄ½á¹û×´Ì¬£¬ÈçÕıÔÚ±¸·İµ«ÊÇÓĞ¾¯¸æ£¨RUNNING WITH WARNINGS£©£¬Õı³£Íê³É£¨COMPLETED£©¡¢Íê³Éµ«ÊÇÓĞ´íÎó£¨COMPLETED WITH ERRORS£©µÈ
+STATUS:rmanå¤‡ä»½jobçš„ç»“æœçŠ¶æ€ï¼Œå¦‚æ­£åœ¨å¤‡ä»½ä½†æ˜¯æœ‰è­¦å‘Šï¼ˆRUNNING WITH WARNINGSï¼‰ï¼Œæ­£å¸¸å®Œæˆï¼ˆCOMPLETEDï¼‰ã€å®Œæˆä½†æ˜¯æœ‰é”™è¯¯ï¼ˆCOMPLETED WITH ERRORSï¼‰ç­‰
 RUNNING WITH WARNINGS
 RUNNING WITH ERRORS
 COMPLETED
@@ -70,8 +75,8 @@ FAILED
 
 
 
-¼¸¸ö³£ÓÃSQL
-1.²éÑ¯¹ıÈ¥ºÍÏÖÔÚRMAN±¸·İ¹¤×÷µÄÏêÏ¸Çé¿ö
+å‡ ä¸ªå¸¸ç”¨SQL
+1.æŸ¥è¯¢è¿‡å»å’Œç°åœ¨RMANå¤‡ä»½å·¥ä½œçš„è¯¦ç»†æƒ…å†µ
 set pages 100 lin 150
  col START_TIME for a20
  col END_TIME for a20
@@ -89,7 +94,7 @@ SESSION_KEY INPUT_TYPE    STATUS    START_TIME       END_TIME            HOURS
           2 DB FULL       COMPLETED 2013-11-05 09:42 2013-11-05 09:43     .018
           4 DB FULL       FAILED    2013-11-05 09:49 2013-11-05 09:49     .001
 
-2.RMAN±¸·İµÄËÙ¶È£¬in_sec±íÊ¾Ã¿ÃëµÄinputËÙ¶È£¬output±íÊ¾Ã¿ÃëµÄoutputËÙ¶È
+2.RMANå¤‡ä»½çš„é€Ÿåº¦ï¼Œin_secè¡¨ç¤ºæ¯ç§’çš„inputé€Ÿåº¦ï¼Œoutputè¡¨ç¤ºæ¯ç§’çš„outputé€Ÿåº¦
 COL in_sec FORMAT a10
 COL out_sec FORMAT a10
 COL TIME_TAKEN_DISPLAY FORMAT a10
@@ -108,7 +113,7 @@ SESSION_KEY OPT COMPRESSION_RATIO IN_SEC     OUT_SEC    TIME_TAKEN
           4 NO         1.99215686  1016.00K    510.00K  00:00:04
 
 
-3.ÏÔÊ¾±¸·İµÄ³ß´ç¡£OUT_SIZE±íÊ¾±¸·İ³öµÄ³ß´ç£¬IN_SIZE±íÊ¾ÊäÈëµÄÊı¾İ×Ü´óĞ¡¡£
+3.æ˜¾ç¤ºå¤‡ä»½çš„å°ºå¯¸ã€‚OUT_SIZEè¡¨ç¤ºå¤‡ä»½å‡ºçš„å°ºå¯¸ï¼ŒIN_SIZEè¡¨ç¤ºè¾“å…¥çš„æ•°æ®æ€»å¤§å°ã€‚
 COL in_size  FORMAT a10
 COL out_size FORMAT a10
 SELECT SESSION_KEY,
@@ -135,13 +140,13 @@ FROM   V$RMAN_BACKUP_JOB_DETAILS where INPUT_TYPE='DB FULL'
 ORDER BY SESSION_KEY;
 
 
-ÔÚoracle Êı¾İ¿âºÜ¶àµÄÇé¿öÏÂ£¬¿ÉÒÔÀûÓÃV$RMAN_BACKUP_JOB_DETAILS+DB_LINKµÄ·½Ê½ÊµÏÖ¼¯ÖĞ¼à¿ØËùÓĞÊı¾İ¿âµÄRman±¸·İÇé¿ö£¬
-¶øÎŞĞèµÇÂ¼µ½Êı¾İ¿âËùÔÚÖ÷»ú²é¿´±¸·İÈÕÖ¾£¬¼õÇáÁËDBAµÄ¹¤×÷Á¿¡£       
+åœ¨oracle æ•°æ®åº“å¾ˆå¤šçš„æƒ…å†µä¸‹ï¼Œå¯ä»¥åˆ©ç”¨V$RMAN_BACKUP_JOB_DETAILS+DB_LINKçš„æ–¹å¼å®ç°é›†ä¸­ç›‘æ§æ‰€æœ‰æ•°æ®åº“çš„Rmanå¤‡ä»½æƒ…å†µï¼Œ
+è€Œæ— éœ€ç™»å½•åˆ°æ•°æ®åº“æ‰€åœ¨ä¸»æœºæŸ¥çœ‹å¤‡ä»½æ—¥å¿—ï¼Œå‡è½»äº†DBAçš„å·¥ä½œé‡ã€‚       
 
-¼à¿Ø×´Ì¬
+ç›‘æ§çŠ¶æ€
 send EXT_CRMA,status
 
-----gg¸ü¸ÄÆô¶¯µã
+----ggæ›´æ”¹å¯åŠ¨ç‚¹
 alter extract EXT_CRMB,begin now
 start EXT_CRMB
 
@@ -160,38 +165,38 @@ start DPP_JS
 alter DPP_ZX etrollover
 
 
---¸øÏµÍ³ÓÃ»§¸³crontabÈ¨ÏŞ
+--ç»™ç³»ç»Ÿç”¨æˆ·èµ‹crontabæƒé™
 cd /usr/adm/cron
-vi cron.allowÌí¼ÓÓÃ»§
+vi cron.allowæ·»åŠ ç”¨æˆ·
 
---¸øÊı¾İ¿âÓÃ»§¸³Ä¿Â¼¶ÁĞ´È¨ÏŞ
+--ç»™æ•°æ®åº“ç”¨æˆ·èµ‹ç›®å½•è¯»å†™æƒé™
 GRANT READ,WRITE ON DIRECTORY INFDATAP_PMOS TO PMOS;
 
---sqlplus¸ñÊ½»¯Êä³ö
---¼ÆÊ±
+--sqlplusæ ¼å¼åŒ–è¾“å‡º
+--è®¡æ—¶
 set timing on
---ÏÔÊ¾Ê±¼ä
+--æ˜¾ç¤ºæ—¶é—´
 set time on
---ÉèÖÃÍøÒ³¸ñÊ½
+--è®¾ç½®ç½‘é¡µæ ¼å¼
 SET MARKUP HTML ON ENTMAP ON SPOOL ON PRE OFF
 set markup HTML ON BODY "" TABLE "border='1' width='800%' align='center' summary='Script output'" SPOOL ON ENTMAP ON PRE OFF
 
----resize±í¿Õ¼ä
---Éú³Éresize½Å±¾
+---resizeè¡¨ç©ºé—´
+--ç”Ÿæˆresizeè„šæœ¬
 set pages 100 lin 120
 select 'ALTER DATABASE DATAFILE ''' ||FILE_NAME||''' resize 1024M;' from dba_data_files where TABLESPACE_NAME='ACCOUNT07_IDX';
 
 ALTER DATABASE DATAFILE '/oradata02/waccta/account07_idx_15.dbf' resize 1024M;
 
 
-addÊı¾İÎÄ¼ş
+addæ•°æ®æ–‡ä»¶
 alter tablespace TBS_MONITOR add datafile '/data/oradata/dbmonitor/tbs_monitor03.dbf'  size 30G autoextend off;
 alter tablespace ACCOUNT08 add datafile '/oradata/bossa/data02/ACCOUNT08_10.dbf'  size 8192M autoextend off;
 
---12c±í¿Õ¼ä
+--12cè¡¨ç©ºé—´
 
 
---²éÑ¯±í¿Õ¼äµÄÊ¹ÓÃÂÊ(MB)
+--æŸ¥è¯¢è¡¨ç©ºé—´çš„ä½¿ç”¨ç‡(MB)
 set lin 200 pagesize 1000
 select b.tablespace_name,round(sum(b.bytes)/1024/1024,0) sum_MB, round(sum(nvl(a.bytes,0))/1024/1024,0) free_MB,
   round((sum(b.bytes)-sum(nvl(a.bytes,0)))/sum(b.bytes),4)*100 use_precent
@@ -202,7 +207,7 @@ where a.file_id(+)=b.file_id and a.tablespace_name(+)=b.tablespace_name
 group by b.tablespace_name
 order by 4;
 
---Ö¸¶¨±í¿Õ¼äÊı¾İÎÄ¼ş
+--æŒ‡å®šè¡¨ç©ºé—´æ•°æ®æ–‡ä»¶
 set linesize 120
 col name format a60
 col file# format 9999
@@ -214,7 +219,7 @@ FROM V$DATAFILE F,V$TABLESPACE T
 WHERE F.ts#=T.ts# AND T.NAME = NVL(UPPER('&tablespace'),'SYSTEM')
 order by f.CREATION_TIME;
 
---DGÊ¹ÓÃÂÊ
+--DGä½¿ç”¨ç‡
 select name,total_mb,free_mb from v$asm_diskgroup;
 
 alter database  datafile '+DATADG2/masyd/tbs_masyd_data_02.bdf' resize  32760M;
@@ -223,64 +228,64 @@ alter tablespace GD_ST_DATA  add datafile '+DATA' size 16384m autoextend off;
 
 
 
---unix»·¾³ÇĞ³ı·ÖºÅ
+--unixç¯å¢ƒåˆ‡é™¤åˆ†å·
 echo "Z;A"|sed 's/\;//g'
 
 
---gunzip½âÑ¹gzÎÄ¼ş
+--gunzipè§£å‹gzæ–‡ä»¶
 
 
----linuxµÄµÄ²ÎÊıne
+---linuxçš„çš„å‚æ•°ne
 if [ $# -ne 20 ]
 then
         Usage
         exit 1
 fi
-$#±íÊ¾Ìá¹©µ½shell½Å±¾»òÕßº¯ÊıµÄ²ÎÊı×ÜÊı£»
-$?ÊÇshell±äÁ¿,±íÊ¾"×îºóÒ»´ÎÖ´ĞĞÃüÁî"µÄÍË³ö×´Ì¬.0Îª³É¹¦,·Ç0ÎªÊ§°Ü.
--ne ²»µÈÓÚ
+$#è¡¨ç¤ºæä¾›åˆ°shellè„šæœ¬æˆ–è€…å‡½æ•°çš„å‚æ•°æ€»æ•°ï¼›
+$?æ˜¯shellå˜é‡,è¡¨ç¤º"æœ€åä¸€æ¬¡æ‰§è¡Œå‘½ä»¤"çš„é€€å‡ºçŠ¶æ€.0ä¸ºæˆåŠŸ,é0ä¸ºå¤±è´¥.
+-ne ä¸ç­‰äº
 
-ksh²ÎÊıº¬Òå
--d file   ÎÄ¼şÊÇÄ¿Â¼Âğ£¿
--f file    ÎÄ¼şÊÇ¹æÔòÎÄ¼şÂğ£¿
--r file    ÔËĞĞ½Å±¾µÄÓÃ»§ÊÇ·ñÓĞ¶ÁÈ¨ÏŞ
--w file   ÔËĞĞ½Å±¾µÄÓÃ»§ÊÇ·ñÓĞĞ´È¨ÏŞ
--x file    ÔËĞĞ½Å±¾µÄÓÃ»§ÊÇ·ñÓĞÖ´ĞĞÈ¨ÏŞ
--s file    ÎÄ¼şµÄ³¤¶ÈÊÇ·ñ´óÓÚ0
-Àı£ºksh main_gg_auto.sh -f FILE_33.txt && date
+kshå‚æ•°å«ä¹‰
+-d file   æ–‡ä»¶æ˜¯ç›®å½•å—ï¼Ÿ
+-f file    æ–‡ä»¶æ˜¯è§„åˆ™æ–‡ä»¶å—ï¼Ÿ
+-r file    è¿è¡Œè„šæœ¬çš„ç”¨æˆ·æ˜¯å¦æœ‰è¯»æƒé™
+-w file   è¿è¡Œè„šæœ¬çš„ç”¨æˆ·æ˜¯å¦æœ‰å†™æƒé™
+-x file    è¿è¡Œè„šæœ¬çš„ç”¨æˆ·æ˜¯å¦æœ‰æ‰§è¡Œæƒé™
+-s file    æ–‡ä»¶çš„é•¿åº¦æ˜¯å¦å¤§äº0
+ä¾‹ï¼šksh main_gg_auto.sh -f FILE_33.txt && date
 
 
-getoptsÓÃ·¨
-Èç¹ûÑ¡Ïî×Ö·û´®ÖĞµÄ×Ö·ûºóÃæ´øÓĞ¡°:¡±£¨Ã°ºÅ£©£¬ÔòÔ¤ÆÚ´ËÑ¡Ïî½«´øÓĞ²ÎÊı¡£µ±Ñ¡ÏîĞèÒªÑ¡Ïî²ÎÊıÊ±£¬getopts ÃüÁî¾Í½«ÆäÖÃÓÚ±äÁ¿ OPTARG ÖĞ¡£
+getoptsç”¨æ³•
+å¦‚æœé€‰é¡¹å­—ç¬¦ä¸²ä¸­çš„å­—ç¬¦åé¢å¸¦æœ‰â€œ:â€ï¼ˆå†’å·ï¼‰ï¼Œåˆ™é¢„æœŸæ­¤é€‰é¡¹å°†å¸¦æœ‰å‚æ•°ã€‚å½“é€‰é¡¹éœ€è¦é€‰é¡¹å‚æ•°æ—¶ï¼Œgetopts å‘½ä»¤å°±å°†å…¶ç½®äºå˜é‡ OPTARG ä¸­ã€‚
 
-µ±²éÕÒµ½Ñ¡Ïî×Ö·û´®Ëù²»°üº¬µÄÑ¡Ïî×Ö·û£¬»òÕß²éÕÒµ½µÄÑ¡ÏîÃ»ÓĞËùĞèµÄÑ¡Ïî²ÎÊıÊ±£º
+å½“æŸ¥æ‰¾åˆ°é€‰é¡¹å­—ç¬¦ä¸²æ‰€ä¸åŒ…å«çš„é€‰é¡¹å­—ç¬¦ï¼Œæˆ–è€…æŸ¥æ‰¾åˆ°çš„é€‰é¡¹æ²¡æœ‰æ‰€éœ€çš„é€‰é¡¹å‚æ•°æ—¶ï¼š
 
-Èç¹ûÑ¡Ïî×Ö·û´®²»ÒÔ:£¨Ã°ºÅ£©¿ªÍ·£¬Ãû³Æ ½«»á±»ÉèÖÃÎª ?£¨ÎÊºÅ£©×Ö·û,OPTARG. ½«±»È¡ÏûÉèÖÃ£¬²¢ÇÒÕï¶ÏÏûÏ¢½«±»Ğ´Èëµ½±ê×¼´íÎóÖĞ¡£
-ÕâÖÖÇé¿ö±»ÈÏÎªÊÇÔÚ½«²ÎÊı´«µİ¸øËùµ÷ÓÃµÄÓ¦ÓÃ³ÌĞòµÄ¹ı³ÌÖĞËù¼ì²âµ½µÄ´íÎó£¬¶ø²»ÊÇÔÚ´¦Àí getopts ÃüÁîµÄ¹ı³ÌÖĞËù·¢ÉúµÄ´íÎó£»
-ÈçÉÏËùÊö£¬Ğ´ÈëÕï¶ÏÏûÏ¢£¬µ«ÍË³ö×´Ì¬½«±äÎªÁã¡£
+å¦‚æœé€‰é¡¹å­—ç¬¦ä¸²ä¸ä»¥:ï¼ˆå†’å·ï¼‰å¼€å¤´ï¼Œåç§° å°†ä¼šè¢«è®¾ç½®ä¸º ?ï¼ˆé—®å·ï¼‰å­—ç¬¦,OPTARG. å°†è¢«å–æ¶ˆè®¾ç½®ï¼Œå¹¶ä¸”è¯Šæ–­æ¶ˆæ¯å°†è¢«å†™å…¥åˆ°æ ‡å‡†é”™è¯¯ä¸­ã€‚
+è¿™ç§æƒ…å†µè¢«è®¤ä¸ºæ˜¯åœ¨å°†å‚æ•°ä¼ é€’ç»™æ‰€è°ƒç”¨çš„åº”ç”¨ç¨‹åºçš„è¿‡ç¨‹ä¸­æ‰€æ£€æµ‹åˆ°çš„é”™è¯¯ï¼Œè€Œä¸æ˜¯åœ¨å¤„ç† getopts å‘½ä»¤çš„è¿‡ç¨‹ä¸­æ‰€å‘ç”Ÿçš„é”™è¯¯ï¼›
+å¦‚ä¸Šæ‰€è¿°ï¼Œå†™å…¥è¯Šæ–­æ¶ˆæ¯ï¼Œä½†é€€å‡ºçŠ¶æ€å°†å˜ä¸ºé›¶ã€‚
 
-Èç¹ûÑ¡Ïî×Ö·û´®ÒÔ :£¨Ã°ºÅ£©¿ªÍ·£¬Ãû³Æ ½«±»ÉèÎª ? £¨ÎÊºÅ£©×Ö·û£¬ÕâÊÇ¶ÔÎ´ÖªµÄÑ¡ÏîÀ´ËµµÄ£¬»òÕßÎªÈ±ÉÙµÄËùĞèÑ¡ÏîÉèÎª:£¨Ã°ºÅ£©×Ö·û£¬
-OPTARG ½«±»ÉèÖÃÎªÒÑ²éÕÒµ½µÄÑ¡Ïî×Ö·û£¬²¢ÇÒ ±ê×¼´íÎóÖĞ½«²»Ğ´ÈëÈÎºÎÊä³ö¡£
-ÒÔÏÂÈÎºÎ×Ö·û¶¼¿ÉÒÔÊ¶±ğÑ¡Ïî½áÎ²£ºÌØÊâÑ¡Ïî- -,²éÕÒµ½²»ÒÔ-,»òÕß+Îª¿ªÍ·µÄ²ÎÊı,»òÕßÓöµ½´íÎó¡£
+å¦‚æœé€‰é¡¹å­—ç¬¦ä¸²ä»¥ :ï¼ˆå†’å·ï¼‰å¼€å¤´ï¼Œåç§° å°†è¢«è®¾ä¸º ? ï¼ˆé—®å·ï¼‰å­—ç¬¦ï¼Œè¿™æ˜¯å¯¹æœªçŸ¥çš„é€‰é¡¹æ¥è¯´çš„ï¼Œæˆ–è€…ä¸ºç¼ºå°‘çš„æ‰€éœ€é€‰é¡¹è®¾ä¸º:ï¼ˆå†’å·ï¼‰å­—ç¬¦ï¼Œ
+OPTARG å°†è¢«è®¾ç½®ä¸ºå·²æŸ¥æ‰¾åˆ°çš„é€‰é¡¹å­—ç¬¦ï¼Œå¹¶ä¸” æ ‡å‡†é”™è¯¯ä¸­å°†ä¸å†™å…¥ä»»ä½•è¾“å‡ºã€‚
+ä»¥ä¸‹ä»»ä½•å­—ç¬¦éƒ½å¯ä»¥è¯†åˆ«é€‰é¡¹ç»“å°¾ï¼šç‰¹æ®Šé€‰é¡¹- -,æŸ¥æ‰¾åˆ°ä¸ä»¥-,æˆ–è€…+ä¸ºå¼€å¤´çš„å‚æ•°,æˆ–è€…é‡åˆ°é”™è¯¯ã€‚
 
-µ±Óöµ½Ñ¡Ïî½áÎ²Ê±£º
-getopts ÃüÁî½«ÍË³öÔËĞĞ,²¢ÇÒ·µ»ØÖµ´óÓÚÁã£¬OPTARG ½«±»ÉèÖÃÎªµÚÒ»¸ö·ÇÑ¡Ïî²ÎÊıË÷Òı£¬ÔÚÕâÖÖÇé¿öÏÂ£¬Èç¹ûµÚÒ»¸ö - - ²ÎÊıÖ®Ç°Î´³öÏÖÆäËü·ÇÑ¡Ïî²ÎÊı£¬½«ÈÏÎªËüÊÇÑ¡Ïî²ÎÊı£¬»òÕßÈç¹ûÃ»ÓĞ·ÇÑ¡Ïî²ÎÊı£¬ÉèÖÃÎªÖµ $#+1£¬Ãû³Æ½«±»ÉèÖÃÎª? £¨ÎÊºÅ£©×Ö·û£¬
+å½“é‡åˆ°é€‰é¡¹ç»“å°¾æ—¶ï¼š
+getopts å‘½ä»¤å°†é€€å‡ºè¿è¡Œ,å¹¶ä¸”è¿”å›å€¼å¤§äºé›¶ï¼ŒOPTARG å°†è¢«è®¾ç½®ä¸ºç¬¬ä¸€ä¸ªéé€‰é¡¹å‚æ•°ç´¢å¼•ï¼Œåœ¨è¿™ç§æƒ…å†µä¸‹ï¼Œå¦‚æœç¬¬ä¸€ä¸ª - - å‚æ•°ä¹‹å‰æœªå‡ºç°å…¶å®ƒéé€‰é¡¹å‚æ•°ï¼Œå°†è®¤ä¸ºå®ƒæ˜¯é€‰é¡¹å‚æ•°ï¼Œæˆ–è€…å¦‚æœæ²¡æœ‰éé€‰é¡¹å‚æ•°ï¼Œè®¾ç½®ä¸ºå€¼ $#+1ï¼Œåç§°å°†è¢«è®¾ç½®ä¸º? ï¼ˆé—®å·ï¼‰å­—ç¬¦ï¼Œ
 
-²ÎÊı
-ÏÂÁĞ getopts ÃüÁî¹æ¶¨ a¡¢b ºÍ c ÎªÓĞĞ§Ñ¡Ïî,²¢ÇÒÑ¡Ïî a ºÍ c ´øÓĞ²ÎÊı£º
+å‚æ•°
+ä¸‹åˆ— getopts å‘½ä»¤è§„å®š aã€b å’Œ c ä¸ºæœ‰æ•ˆé€‰é¡¹,å¹¶ä¸”é€‰é¡¹ a å’Œ c å¸¦æœ‰å‚æ•°ï¼š
 getopts a:bc: OPT
 
-ÏÂÁĞ getopts ÃüÁîÖ¸¶¨ a¡¢b ÒÔ¼° c ÎªÓĞĞ§Ñ¡Ïî, ²¢ÇÒÑ¡Ïî a ºÍ b ´øÓĞ²ÎÊı£¬¶øÇÒ getopts ÔÚÃüÁîĞĞÓöµ½Îª¶¨ÒåµÄÑ¡ÏîÊ±£¬
-Ëü½« OPT µÄÖµÉèÖÃÎª ?£º
+ä¸‹åˆ— getopts å‘½ä»¤æŒ‡å®š aã€b ä»¥åŠ c ä¸ºæœ‰æ•ˆé€‰é¡¹, å¹¶ä¸”é€‰é¡¹ a å’Œ b å¸¦æœ‰å‚æ•°ï¼Œè€Œä¸” getopts åœ¨å‘½ä»¤è¡Œé‡åˆ°ä¸ºå®šä¹‰çš„é€‰é¡¹æ—¶ï¼Œ
+å®ƒå°† OPT çš„å€¼è®¾ç½®ä¸º ?ï¼š
 getopts :a:b:c OPT
 
---×¼Éú²úÕËºÅÃÜÂëĞŞ¸Ä
+--å‡†ç”Ÿäº§è´¦å·å¯†ç ä¿®æ”¹
 alter user DBACCOPR identified by DBACCOPR;
 alter user DBACCADM identified by DBACCADM;
 
 sqlplus dbmon/d_BM540C!c3@10.153.179.15:1521/spmsdb
 
---±í¿Õ¼ä¼ì²é
+--è¡¨ç©ºé—´æ£€æŸ¥
 col sid for a10
 col ip for a20
 col cn_name for a30
@@ -293,7 +298,7 @@ from dbmon.snc_tsmon_tsinfo a
 where a.used_rate >95 and a.logtime >(sysdate-0.5) and a.ip not in ('10.153.178.28','10.153.190.150') and a.TABLESPACE_NAME not like 'UNDO%' order by a.used_rate desc;
 
 
---Ë¢ĞÂ³¬Ê±¹¤µ¥
+--åˆ·æ–°è¶…æ—¶å·¥å•
 update uitsm3.itsm_task_stat_1112 t
    set t.fld_inc_alarmdischargetime = t.fld_inc_deadline,   
        t.fld_inc_isalarmdisovertime = '2'
@@ -302,7 +307,7 @@ where t.task_create_by  in ( 'caogw','34522492','dwxtb081')
    and t.task_origin = 'TOPTEA'
    and t.fld_inc_isalarmdisovertime = '1' ;
 
---Ë¢Ìá½»³¬Ê±¹¤µ¥£º
+--åˆ·æäº¤è¶…æ—¶å·¥å•ï¼š
 update uitsm3.itsm_task_stat_1112 t
    set t.task_update_time = t.fld_inc_deadline,
        t.fld_inc_iscloseovertime = '2'       
@@ -312,50 +317,50 @@ where t.task_create_by in ( 'caogw','34522492','dwxtb081')
    and t.fld_inc_iscloseovertime = '1' ;
 commit;
 
-----¹¤×÷Á¿ÌîĞ´
-dongyj  ¡¢ zhanghui01 ¡¢ dingyuan ¡¢ zhangyp ?? hujie01 ¡¢ zhanghong ¡¢ wangyb ¡¢ caogw ¡¢ zhangfeng ¡¢
-zhanggp¡¢ longxy ¡¢ zhuss ¡¢ yangll ¡¢ yangcz01 ¡¢qiuhy ¡¢ id367 ¡¢wangtao01 ¡¢ zhangnina02 ¡¢yuanwx
+----å·¥ä½œé‡å¡«å†™
+dongyj  ã€ zhanghui01 ã€ dingyuan ã€ zhangyp ?? hujie01 ã€ zhanghong ã€ wangyb ã€ caogw ã€ zhangfeng ã€
+zhanggpã€ longxy ã€ zhuss ã€ yangll ã€ yangcz01 ã€qiuhy ã€ id367 ã€wangtao01 ã€ zhangnina02 ã€yuanwx
 
 http://10.153.195.92:8080/rdmp/rdmp/login.jsp
-dongyj ¡¢ dingyuan ¡¢ zhangyp ¡¢ hujie01 ¡¢ zhanghong ¡¢ wangyb ¡¢ zhangfeng ¡¢ zhanggp ¡¢ zhuss
-ÈÎÎñÃû³Æ£º
-°²»ÕÒÆ¶¯2014ÄêORACLEÊı¾İ¿âÖĞ¼ä¼şµÚÈı·½×¤³¡·şÎñºÏÍ¬
-¹¤×÷ÄÚÈİ£º
-Êı¾İ¿â¡¢ÖĞ¼ä¼şÎ¬»¤ÓÅ»¯
+dongyj ã€ dingyuan ã€ zhangyp ã€ hujie01 ã€ zhanghong ã€ wangyb ã€ zhangfeng ã€ zhanggp ã€ zhuss
+ä»»åŠ¡åç§°ï¼š
+å®‰å¾½ç§»åŠ¨2014å¹´ORACLEæ•°æ®åº“ä¸­é—´ä»¶ç¬¬ä¸‰æ–¹é©»åœºæœåŠ¡åˆåŒ
+å·¥ä½œå†…å®¹ï¼š
+æ•°æ®åº“ã€ä¸­é—´ä»¶ç»´æŠ¤ä¼˜åŒ–
 
 zhuss
-°²»ÕÒÆ¶¯¹¤×÷Î¬»¤¹¤×÷±¨¸æÕûÀí
+å®‰å¾½ç§»åŠ¨å·¥ä½œç»´æŠ¤å·¥ä½œæŠ¥å‘Šæ•´ç†
 
-zhanghui01 ¡¢ longxy ¡¢ caogw ¡¢ yangll
-ÈÎÎñÃû³Æ£º
-2014ÄêÊı¾İÖÎÀíÓÅ»¯·şÎñ
-¹¤×÷ÄÚÈİ£º
-2014Êı¾İÖÎÀíÓÅ»¯ÏîÄ¿£¬¼°Êı¾İÇåÀí
+zhanghui01 ã€ longxy ã€ caogw ã€ yangll
+ä»»åŠ¡åç§°ï¼š
+2014å¹´æ•°æ®æ²»ç†ä¼˜åŒ–æœåŠ¡
+å·¥ä½œå†…å®¹ï¼š
+2014æ•°æ®æ²»ç†ä¼˜åŒ–é¡¹ç›®ï¼ŒåŠæ•°æ®æ¸…ç†
 
-----¼à¿ØÖ÷»ú
+----ç›‘æ§ä¸»æœº
 10.243.2.187
 oracle/Jlzt!123
 crm/crm201303
 
-ĞÂÔö2¸övpn£¬@±ò±ò °ÑÖ®Ç°changylµÄvpn»ã×ÜÏÂ£¬ÖØĞÂ·¢³öÀ´¡£
-µØÖ·£ºhttps://120.209.204.199
-ÕËºÅ1£ºzhangyp
-¿ÚÁî£ºpassword@2 + ¶ÌĞÅÑéÖ¤Âë
+æ–°å¢2ä¸ªvpnï¼Œ@å½¬å½¬ æŠŠä¹‹å‰changylçš„vpnæ±‡æ€»ä¸‹ï¼Œé‡æ–°å‘å‡ºæ¥ã€‚
+åœ°å€ï¼šhttps://120.209.204.199
+è´¦å·1ï¼šzhangyp
+å£ä»¤ï¼špassword@2 + çŸ­ä¿¡éªŒè¯ç 
 
-ÕËºÅ2£ºhujie
-¿ÚÁî£ºpassword@2 + ¶ÌĞÅÑéÖ¤Âë
+è´¦å·2ï¼šhujie
+å£ä»¤ï¼špassword@2 + çŸ­ä¿¡éªŒè¯ç 
 
---bomcÕÊºÅ
+--bomcå¸å·
 http://bomc.ah.amcc/cas/supperLogin.jsp?pwd=ahbomc&user=caogw
 http://bomc.ah.amcc/cas/supperLogin.jsp?pwd=ahbomc&user=dwxtb081
 
-bomcĞÂÁ´½Ó£º
+bomcæ–°é“¾æ¥ï¼š
 http://bomc.ah.amcc/cas/supperLogin.jsp?pwd=ahbomc&user=34522492
 
-----bomcµÄroot
+----bomcçš„root
 http://bomc.ah.amcc/cas/supperLogin.jsp?user=root&pwd=root123
 
----½âËøÕËºÅ
+---è§£é”è´¦å·
 select account_status from dba_users where username='SHIWEI';
 
 alter user SHIWEI identified by  shiwei_987;
@@ -363,7 +368,7 @@ alter user SHIWEI account unlock;
 
 conn SHIWEI/shiwei_987
 
------´´½¨ÕËºÅ-----
+-----åˆ›å»ºè´¦å·-----
 select username from dba_users;
 select username,DEFAULT_TABLESPACE,created from dba_users where username ='ZHOUW' ;
 select dbms_metadata.get_ddl( 'USER','GELEI1') from dual;
@@ -375,37 +380,37 @@ select OWNER,TABLE_NAME,PRIVILEGE from dba_tab_privs where GRANTEE='OA_EHR';
 grant create table to shenff;
 grant UNLIMITED TABLESPACE to shenff;
 
-----×éºÏ²éÊı
+----ç»„åˆæŸ¥æ•°
 select owner,object_name,object_type,status
 from dba_objects
 where (owner,object_name) in (select owner,table_name from ogg.celue_1501)  and object_type not like'%PARTITION' and object_type<>'INDEX' and object_type<>'LOB';
 
 sys/C!1a#2o_3
 
---viewÉèÖÃ
+--viewè®¾ç½®
 set ic
 set nu
 
 
---²âÊÔ»·¾³µÇÂ¼
+--æµ‹è¯•ç¯å¢ƒç™»å½•
 
-ÒÔºó30Íø¶Î²âÊÔ»·¾³µÄ¹¤µ¥¿É´Ó10.243.124.6 ÓÉmayy/xmg1313! µÇÂ½£¬ÇĞ root /Ags&3xtm ¡¢Cnm18&da ÔÚÇĞoracle /oracle10
-Ìø×ª»úIP£º10.243.124.6
-ÓÃ»§£ºchangyulong
-ÃÜÂë£ºchangyulong!123
+ä»¥å30ç½‘æ®µæµ‹è¯•ç¯å¢ƒçš„å·¥å•å¯ä»10.243.124.6 ç”±mayy/xmg1313! ç™»é™†ï¼Œåˆ‡ root /Ags&3xtm ã€Cnm18&da åœ¨åˆ‡oracle /oracle10
+è·³è½¬æœºIPï¼š10.243.124.6
+ç”¨æˆ·ï¼šchangyulong
+å¯†ç ï¼šchangyulong!123
 
-ÕËºÅ£º mayy  ¿ÚÁî: sbpj131!
-ÕËºÅ£º root  ¿ÚÁî: khfca11#
+è´¦å·ï¼š mayy  å£ä»¤: sbpj131!
+è´¦å·ï¼š root  å£ä»¤: khfca11#
 
 
-ĞÂ½áËãÖ÷»úrootµÇÂ¼
+æ–°ç»“ç®—ä¸»æœºrootç™»å½•
 cloud/cloud1234!
 su - root
 root!2013
 
 5t6y#89kL
 
-Í³Ò»ÃÅ»§
+ç»Ÿä¸€é—¨æˆ·
 os.ah.cmcc
 34522492/password1
 
@@ -417,25 +422,25 @@ http://10.153.237.249/download/
 
 ps -ef | grep 'archmon/ftp_arch/ftp_arch' | grep -v grep | awk '{print $2}' | xargs kill -9
 
---ÇåÀí/oracleÄ¿Â¼
---Ê¹ÓÃfind . -name "*trc" -size +10000000c À´²éÑ¯´óÓÚ10MµÄtrcÎÄ¼ş
+--æ¸…ç†/oracleç›®å½•
+--ä½¿ç”¨find . -name "*trc" -size +10000000c æ¥æŸ¥è¯¢å¤§äº10Mçš„trcæ–‡ä»¶
 find .  -size +1000000c
-ÇåÀítrcÎÄ¼ş
+æ¸…ç†trcæ–‡ä»¶
 ls -l | grep "tr[cm]" | awk '{print "> " $9}' > clearxx.sh
-²é¿´Ä¿Â¼
+æŸ¥çœ‹ç›®å½•
 ls -F|grep /$
 find . -type d
 
------ÇåÀítrcÎÄ¼ş
+-----æ¸…ç†trcæ–‡ä»¶
 ls -l | grep "tr[cm]" | awk '{if($6=="Mar"&&$7=="16"){print "> " $9}}' > xxxx.sh
 
 ls -l | grep "tr[cm]" | awk '{print "> " $9}' > clear.sh
 
 
-----×îºóµÄddl²Ù×÷Ê±¼ä
+----æœ€åçš„ddlæ“ä½œæ—¶é—´
 SELECT TO_CHAR(LAST_DDL_TIME,'YYYY-MM-DD HH24:MI:SS') FROM DBA_OBJECTS WHERE OBJECT_NAME='SYS_J_OPLOG';
 
---·ÖÇø±íµÄËéÆ¬·ÖÎö
+--åˆ†åŒºè¡¨çš„ç¢ç‰‡åˆ†æ
 col USED% for 9999
 col table_name for a25
 col segment_name for a25
@@ -458,7 +463,7 @@ where table_owner not like 'UQRY_%'
    and round(avg_row_len*num_rows*10000/((100-pct_free)*8192*blocks)) < 70;
 
 
---ÆÕÍ¨±íËéÆ¬·ÖÎö,¸ßË®Î»
+--æ™®é€šè¡¨ç¢ç‰‡åˆ†æ,é«˜æ°´ä½
 select owner,
        table_name,
        --(select comments from dba_tab_comments where owner=a.owner and table_name=a.table_name),
@@ -485,21 +490,21 @@ order by 1, 8, 7;
 
 
 
-/*  ¸ß¿ÉÓÃÌ½²â
- ÒòBOSSÓë¹ÜĞÅÂ·ÓÉ²»Í¨ËùÒÔ·Ö±ğÉèÖÃ2Ì¨Ì½²âÖ÷»ú½øĞĞÌ½²â.
-1.Ì½²âÖ÷»ú»·¾³¼°·¶Î§
-1.1 Êı¾İ¿âsqlplusµÇÂ¼Ì½²â
-Ì½²âÖ÷»ú    Ì½²â·¶Î§    µÇÂ¼Ì½²âshell    ÈÕÖ¾Êä³ö
+/*  é«˜å¯ç”¨æ¢æµ‹
+ å› BOSSä¸ç®¡ä¿¡è·¯ç”±ä¸é€šæ‰€ä»¥åˆ†åˆ«è®¾ç½®2å°æ¢æµ‹ä¸»æœºè¿›è¡Œæ¢æµ‹.
+1.æ¢æµ‹ä¸»æœºç¯å¢ƒåŠèŒƒå›´
+1.1 æ•°æ®åº“sqlplusç™»å½•æ¢æµ‹
+æ¢æµ‹ä¸»æœº    æ¢æµ‹èŒƒå›´    ç™»å½•æ¢æµ‹shell    æ—¥å¿—è¾“å‡º
 10.147.140.26    NGBOSS    /home/oracle/monitor/hang_detect/hang_test.sh    /opt/oracle/hj.diag/ng.sqlplus-login.log
-10.153.246.81    NGBOSS/¹ÜĞÅ    /home/oracle/sncnet/hang_test.sh    /archive1/hj.diag/ng.sqlplus-login.log
-1.2 Êı¾İ¿âsqlplusµÇÂ¼Ì½²âÈÕÖ¾Õï¶Ï
-1.2.1 NGBOSSÈÕÖ¾: tail -100f /opt/oracle/hj.diag/ng.sqlplus-login.log
-[oracle@redhat6 hj.diag]$ tail -20f /opt/oracle/hj.diag/ng.sqlplus-login.log     << ----Ì½²âÊ±¼ä
+10.153.246.81    NGBOSS/ç®¡ä¿¡    /home/oracle/sncnet/hang_test.sh    /archive1/hj.diag/ng.sqlplus-login.log
+1.2 æ•°æ®åº“sqlplusç™»å½•æ¢æµ‹æ—¥å¿—è¯Šæ–­
+1.2.1 NGBOSSæ—¥å¿—: tail -100f /opt/oracle/hj.diag/ng.sqlplus-login.log
+[oracle@redhat6 hj.diag]$ tail -20f /opt/oracle/hj.diag/ng.sqlplus-login.log     << ----æ¢æµ‹æ—¶é—´
 ------2015-01-04/09:10:28-------
-dbmon/dbmon123@10.153.178.29:1521/linkage_flt                 << ----- Ì½²âµÄÊı¾İ¿â¼°service
+dbmon/dbmon123@10.153.178.29:1521/linkage_flt                 << ----- æ¢æµ‹çš„æ•°æ®åº“åŠservice
 
-OPEN                       <<<<<<<<<------------------------   OPEN²âÊÔµÇÂ¼Õı³££¬ÆäËû
-                                                      ÈÎºÎ·ÇOPENÔòµÇÂ¼²âÊÔÒì³££¬ĞèÒªÈËÎª·ÖÎö£¬Ò»°ãÎª¼àÌıÒì³£/¹éµµÂúµÈ¹ÊÕÏ
+OPEN                       <<<<<<<<<------------------------   OPENæµ‹è¯•ç™»å½•æ­£å¸¸ï¼Œå…¶ä»–
+                                                      ä»»ä½•éOPENåˆ™ç™»å½•æµ‹è¯•å¼‚å¸¸ï¼Œéœ€è¦äººä¸ºåˆ†æï¼Œä¸€èˆ¬ä¸ºç›‘å¬å¼‚å¸¸/å½’æ¡£æ»¡ç­‰æ•…éšœ
 ------2015-01-04/09:10:30-------
 dbmon/dbmon123@10.153.178.29:1521/linkage_grp
 
@@ -517,12 +522,12 @@ dbmon/dbmon123@10.153.178.29:1521/log_crm
 
 OPEN
 
-1.2.2 NGBOSS/¹ÜĞÅÈÕÖ¾:  tail -100f /archive1/hj.diag/ng.sqlplus-login.log
-------2015-01-04/09:22:12-------                                       << ----Ì½²âÊ±¼ä
-dbmon/dbmon123@10.243.0.133:1521/vmeeting              << ----Ì½²âµÄÊı¾İ¿â¼°service
+1.2.2 NGBOSS/ç®¡ä¿¡æ—¥å¿—:  tail -100f /archive1/hj.diag/ng.sqlplus-login.log
+------2015-01-04/09:22:12-------                                       << ----æ¢æµ‹æ—¶é—´
+dbmon/dbmon123@10.243.0.133:1521/vmeeting              << ----æ¢æµ‹çš„æ•°æ®åº“åŠservice
 
-OPEN                               <<<<<<<<<------------------------   OPEN²âÊÔµÇÂ¼Õı³££¬ÆäËû
-                                                      ÈÎºÎ·ÇOPENÔòµÇÂ¼²âÊÔÒì³££¬ĞèÒªÈËÎª·ÖÎö£¬Ò»°ãÎª¼àÌıÒì³£/¹éµµÂúµÈ¹ÊÕÏ
+OPEN                               <<<<<<<<<------------------------   OPENæµ‹è¯•ç™»å½•æ­£å¸¸ï¼Œå…¶ä»–
+                                                      ä»»ä½•éOPENåˆ™ç™»å½•æµ‹è¯•å¼‚å¸¸ï¼Œéœ€è¦äººä¸ºåˆ†æï¼Œä¸€èˆ¬ä¸ºç›‘å¬å¼‚å¸¸/å½’æ¡£æ»¡ç­‰æ•…éšœ
 ------2015-01-04/09:22:13-------
 dbmon/dbmon123@10.243.0.133:1521/xxfp
 
@@ -547,14 +552,14 @@ OPEN
 dbmon/dbmon123@10.147.36.22:11601/AHNPRD
 
 OPEN
-1.3Ö÷»úping/tracerouteÌ½²â
-Ì½²âÖ÷»ú    Ì½²â·¶Î§    µÇÂ¼Ì½²âshell    ÈÕÖ¾Êä³ö
+1.3ä¸»æœºping/tracerouteæ¢æµ‹
+æ¢æµ‹ä¸»æœº    æ¢æµ‹èŒƒå›´    ç™»å½•æ¢æµ‹shell    æ—¥å¿—è¾“å‡º
 10.147.140.26    NGBOSS    /home/oracle/monitor/hang_detect/hang_ping.sh    /opt/oracle/hj.diag/ng.traceroute.log
-10.153.246.81    NGBOSS/¹ÜĞÅ    /home/oracle/sncnet/hang_ping.sh    /archive1/hj.diag/ng.traceroute.log
-1.4Ö÷»úping/tracerouteÌ½²âÈÕÖ¾Õï¶Ï
-1.2.1 NGBOSSÈÕÖ¾: tail -100f /opt/oracle/hj.diag/ng.traceroute.log
+10.153.246.81    NGBOSS/ç®¡ä¿¡    /home/oracle/sncnet/hang_ping.sh    /archive1/hj.diag/ng.traceroute.log
+1.4ä¸»æœºping/tracerouteæ¢æµ‹æ—¥å¿—è¯Šæ–­
+1.2.1 NGBOSSæ—¥å¿—: tail -100f /opt/oracle/hj.diag/ng.traceroute.log
 [oracle@redhat6 ~]$ tail -100f /opt/oracle/hj.diag/ng.traceroute.log
-------2015-01-04/09:30:09-------                                          << ----Ì½²âÊ±¼ä
+------2015-01-04/09:30:09-------                                          << ----æ¢æµ‹æ—¶é—´
 traceroute to 10.153.177.36 (10.153.177.36), 30 hops max, 60 byte packets      << ----traceroute
  1  10.147.140.1 (10.147.140.1)  5.749 ms  6.243 ms  6.701 ms
  2  91.91.91.9 (91.91.91.9)  16.900 ms  16.451 ms  17.341 ms
@@ -564,10 +569,10 @@ traceroute to 10.153.177.36 (10.153.177.36), 30 hops max, 60 byte packets      <
  6  152.55.10.30 (152.55.10.30)  3.097 ms  3.914 ms  4.302 ms
  7  152.55.10.138 (152.55.10.138)  15.483 ms  15.777 ms  16.223 ms
  8  91.91.91.6 (91.91.91.6)  4.939 ms  4.356 ms  4.795 ms
- 9  10.153.177.36 (10.153.177.36)  0.414 ms  0.512 ms  0.637 ms      <<  ----³öÏÖÊ±¼ä´ú±íÂ·ÓÉÍ¨³©
-                                                                   ---Ö÷»úÕı³£
+ 9  10.153.177.36 (10.153.177.36)  0.414 ms  0.512 ms  0.637 ms      <<  ----å‡ºç°æ—¶é—´ä»£è¡¨è·¯ç”±é€šç•…
+                                                                   ---ä¸»æœºæ­£å¸¸
 
-*    *      *   ÕâÀà²Ù×÷ÏÔÊ¾´ú±íÂ·ÓÉ²»Í¨/Ö÷»úcrash
+*    *      *   è¿™ç±»æ“ä½œæ˜¾ç¤ºä»£è¡¨è·¯ç”±ä¸é€š/ä¸»æœºcrash
 ------2015-01-04/09:30:09-------
 traceroute to 10.153.246.83 (10.153.246.83), 30 hops max, 60 byte packets
  1  10.147.140.1 (10.147.140.1)  5.317 ms  5.793 ms  6.270 ms
@@ -578,28 +583,28 @@ traceroute to 10.153.246.83 (10.153.246.83), 30 hops max, 60 byte packets
  6  10.153.246.83 (10.153.246.83)  0.855 ms  0.161 ms  0.144 ms
 
 
-1.2.2 NGBOSS/¹ÜĞÅÈÕÖ¾:  tail -100f /archive1/hj.diag/ng.sqlplus-login.log
+1.2.2 NGBOSS/ç®¡ä¿¡æ—¥å¿—:  tail -100f /archive1/hj.diag/ng.sqlplus-login.log
 $ tail -20f /archive1/hj.diag/ng.traceroute.log
-------2015-01-04/10:59:04-------                                << ----Ì½²âÊ±¼ä
+------2015-01-04/10:59:04-------                                << ----æ¢æµ‹æ—¶é—´
 PING 10.147.160.43: 64 byte packets                            << ----ping
 64 bytes from 10.147.160.43: icmp_seq=0. time=0. ms
 64 bytes from 10.147.160.43: icmp_seq=1. time=0. ms
 64 bytes from 10.147.160.43: icmp_seq=2. time=0. ms
 
 ----10.147.160.43 PING Statistics----
-3 packets transmitted, 3 packets received, 0% packet loss      <<  ----´ú±íÂ·ÓÉÍ¨³©/Ö÷»úÕı³£
+3 packets transmitted, 3 packets received, 0% packet loss      <<  ----ä»£è¡¨è·¯ç”±é€šç•…/ä¸»æœºæ­£å¸¸
 round-trip (ms)  min/avg/max = 0/0/0
-                                  0% ÕâÀï·Ç0´ú±íÍøÂç¶ª°ü/100%ÔòÁ´Â·¶Ï¿ª»òÖ÷»úcrash
+                                  0% è¿™é‡Œé0ä»£è¡¨ç½‘ç»œä¸¢åŒ…/100%åˆ™é“¾è·¯æ–­å¼€æˆ–ä¸»æœºcrash
 
 
-2 Ì½²âÅäÖÃ
-Ö÷»ú    ±»Ì½²âµØÖ·/tns.txt    ¸æ¾¯ÊÕĞÅÈË    Ä¿Â¼
+2 æ¢æµ‹é…ç½®
+ä¸»æœº    è¢«æ¢æµ‹åœ°å€/tns.txt    å‘Šè­¦æ”¶ä¿¡äºº    ç›®å½•
 10.147.140.26    tns.txt    send_phone.cfg    /home/oracle/monitor/hang_detect/
 10.153.246.81    tns.txt    send_phone.cfg    /home/oracle/sncnet/
-Àı:
-¹ÜĞÅtntxt:
+ä¾‹:
+ç®¡ä¿¡tntxt:
 --            ip and db                            status: 0 or 1; 0 is ok.
---ngboss                                                     << 0¼à¿Ø ·Ç0²»¼à¿Ø
+--ngboss                                                     << 0ç›‘æ§ é0ä¸ç›‘æ§
 dbmon/dbmon123@10.153.171.121:1521/wcrma             0
 dbmon/dbmon123@10.153.171.122:1521/wcrma             0
 dbmon/dbmon123@10.153.171.123:1521/wcrmb             0
@@ -620,7 +625,7 @@ dbmon/dbmon123@10.153.251.8:1521/worarept            0
 dbmon/dbmon123@10.153.179.59:1521/orcl               0
 dbmon/dbmon123@10.153.179.60:1521/orcl               0
 dbmon/dbmon123@10.153.177.57:1521/unimandb           0
-dbmon/dbmon123@10.153.178.57:1521/wsuptn             1  <<- - ÇşµÀ1Ä¿Ç°²»¼à¿Ø
+dbmon/dbmon123@10.153.178.57:1521/wsuptn             1  <<- - æ¸ é“1ç›®å‰ä¸ç›‘æ§
 dbmon/dbmon123@10.153.178.58:1521/wsuptn             0
 dbmon/dbmon123@10.152.68.80:1521/icddb               0
 dbmon/dbmon123@10.152.68.90:1521/icddb               0
@@ -639,8 +644,8 @@ dbmon/dbmon123@10.153.179.52:1521/cdrdb              0
 dbmon/dbmon123@10.153.192.216:1521/settdb            0
 dbmon/dbmon123@10.153.192.58:1521/smsdb              0
 dbmon/dbmon123@10.153.192.232:1521/dmcsdb            0
-dbmon/dbmon123@10.153.245.2:1521/pmos                1   <<- - pmosÏÂÏß
-dbmon/dbmon123@10.153.245.3:1521/pmos                1  <<- - pmosÏÂÏß
+dbmon/dbmon123@10.153.245.2:1521/pmos                1   <<- - pmosä¸‹çº¿
+dbmon/dbmon123@10.153.245.3:1521/pmos                1  <<- - pmosä¸‹çº¿
 dbmon/dbmon123@10.153.194.219:1521/anadb             0
 dbmon/dbmon123@10.153.194.220:1521/anadb             0
 dbmon/dbmon123@10.153.178.31:1521/integ              0
@@ -661,10 +666,10 @@ dbmon/dbmon123@10.153.242.141:1521/rambdb            0
 dbmon/dbmon123@10.153.242.142:1524/rambdbbk          0
 dbmon/dbmon123@10.153.190.150:1521/hisdb             0
 dbmon/dbmon123@10.153.190.160:1521/hisdb             0
-dbmon/dbmon123@10.153.192.165:1521/hhisdb            1 <<- - ÀúÊ·¿âÏÂÏß
+dbmon/dbmon123@10.153.192.165:1521/hhisdb            1 <<- - å†å²åº“ä¸‹çº¿
 dbmon/dbmon123@10.153.177.70:1521/dictdb             0
 
---- NGBOSS -integ/integb service                <<  --   11G scan listenerÌ½²â
+--- NGBOSS -integ/integb service                <<  --   11G scan listeneræ¢æµ‹
 dbmon/dbmon123@10.153.178.29:1521/ahaudit            0
 dbmon/dbmon123@10.153.178.29:1521/ahydasr            0
 dbmon/dbmon123@10.153.178.29:1521/ahydifly           0
@@ -711,9 +716,9 @@ dbmon/dbmon123@10.243.0.133:1521/xxfp                0
 dbmon/dbmon123@10.243.0.133:1521/ycxk                0
 dbmon/dbmon123@10.243.0.133:1521/ywzy                0
 
---guanxin                                         << --- ¹ÜĞÅÌ½²â
-                                                 << bossÌ½²âÖ÷»úÓë¹ÜĞÅÂ·ÓÉ²»Í¨
-                                                   ĞèÊÖ¹¤ÆÁ±Î¹ÜĞÅ:ÉèÖÃ1
+--guanxin                                         << --- ç®¡ä¿¡æ¢æµ‹
+                                                 << bossæ¢æµ‹ä¸»æœºä¸ç®¡ä¿¡è·¯ç”±ä¸é€š
+                                                   éœ€æ‰‹å·¥å±è”½ç®¡ä¿¡:è®¾ç½®1
 dbmon/dbmon123@10.153.177.70:1521/dictdb             0
 dbmon/dbmon123@10.147.36.20:11501/AHPRD              0
 dbmon/dbmon123@10.147.36.22:11601/AHNPRD             0
@@ -730,11 +735,11 @@ dbmon/dbmon123@10.147.13.13:1521/ora                 0
 */
 
 
-/*************************************************************ÕÊºÅ¹¤µ¥**********************************************************************
+/*************************************************************å¸å·å·¥å•**********************************************************************
 
-----------------------------------------------------¸öÈËÕËºÅ´´½¨----------------------------------------------------
-Àı:crm
-1. ²éÑ¯µ±Ç°¿âÄ¬ÈÏPROFILE/DEFAULT_TABLESPACE/TEMPORARY_TABLESPACEÏà¹ØĞÅÏ¢
+----------------------------------------------------ä¸ªäººè´¦å·åˆ›å»º----------------------------------------------------
+ä¾‹:crm
+1. æŸ¥è¯¢å½“å‰åº“é»˜è®¤PROFILE/DEFAULT_TABLESPACE/TEMPORARY_TABLESPACEç›¸å…³ä¿¡æ¯
 set line 180 pages 1000 long 999999
 select username,profile,DEFAULT_TABLESPACE,TEMPORARY_TABLESPACE,created from dba_users order by created asc;
 USERNAME PROFILE DEFAULT_TABLESPACE TEMPORARY_TABLESPACE
@@ -744,7 +749,7 @@ ZHANGJING01 PROFILE_PERSON TBS_PERSON TEMP_PERSON
 ZHAIHUI PROFILE_PERSON TBS_PERSON TEMP_PERSON
 
 
------´´½¨ÕËºÅ-----
+-----åˆ›å»ºè´¦å·-----
 select username from dba_users;
 select username,DEFAULT_TABLESPACE,created from dba_users where username ='ZHOUW' ;
 select dbms_metadata.get_ddl( 'USER','LIYX') from dual;
@@ -755,33 +760,33 @@ grant create table to shenff;
 grant UNLIMITED TABLESPACE to shenff;
 
 
-2. ´´½¨ÕËºÅ
+2. åˆ›å»ºè´¦å·
 create user shenff identified by amcc$123 profile DEFAULT default tablespace USERS temporary tablespace TEMP;
--- ³§ÉÌ¸öÈËÕËºÅÒ»°ãÖ»ÓĞµÇÂ¼¼°²éÑ¯È¨ÏŞ,ÈôÓĞÆäËûÈ¨ÏŞÁíĞĞ¿¼ÂÇ ¼×·½ÕËºÅµÇÂ¼¼°²éÑ¯È¨ÏŞ±ØĞë¸³Óè,ÈôÓĞÆäËûÈ¨ÏŞÁíĞĞ¿¼ÂÇ
+-- å‚å•†ä¸ªäººè´¦å·ä¸€èˆ¬åªæœ‰ç™»å½•åŠæŸ¥è¯¢æƒé™,è‹¥æœ‰å…¶ä»–æƒé™å¦è¡Œè€ƒè™‘ ç”²æ–¹è´¦å·ç™»å½•åŠæŸ¥è¯¢æƒé™å¿…é¡»èµ‹äºˆ,è‹¥æœ‰å…¶ä»–æƒé™å¦è¡Œè€ƒè™‘
 grant connect ,select any table to shenff;
-3 . Ìá½»¹¤µ¥²¢¸½¼ÓĞÅÏ¢
-ÕËºÅÃÜÂë£º
+3 . æäº¤å·¥å•å¹¶é™„åŠ ä¿¡æ¯
+è´¦å·å¯†ç ï¼š
 boz12c / Pkd!982x
 
-----------------------------------------------------Ô¤Éè/³ÌĞòÕËºÅ´´½¨----------------------------------------------------
-Àı:crm
-1.´´½¨Ô¤Éè±í¿Õ¼ä Ğè×¢Òâ Êı¾İ/Ë÷Òı ±í¿Õ¼ä
+----------------------------------------------------é¢„è®¾/ç¨‹åºè´¦å·åˆ›å»º----------------------------------------------------
+ä¾‹:crm
+1.åˆ›å»ºé¢„è®¾è¡¨ç©ºé—´ éœ€æ³¨æ„ æ•°æ®/ç´¢å¼• è¡¨ç©ºé—´
 (1)create tablespace tbs_xxx_data datafile '....' size 8g autoextend off;
 (2)create tablespace tbs_xxx_idx  datafile '....' size 8g autoextend off;
 (3)create user ... identified by xxx default tablespace tbs_xxx_data;
 (4)alter user ... quota unlimited on tbs_xxx_data;
-2.Ìá½»¹¤µ¥²¢¸½¼ÓĞÅÏ¢
-ÕËºÅÃÜÂë£º
+2.æäº¤å·¥å•å¹¶é™„åŠ ä¿¡æ¯
+è´¦å·å¯†ç ï¼š
 boz12c / Pkd!982x
-±í¿Õ¼ä£º
+è¡¨ç©ºé—´ï¼š
 tbs_cuz_data 64G
 tbs_cuz_idx 32G
 
 create tablespace cheryfs_icar datafile '/data/oradata/cheryfsprd/cheryfs_icar01.dbf' size 30g autoextend off;
 
 
-----------------------------------------------------12C PDB/ÕËºÅ´´½¨----------------------------------------------------
-1 . ´´½¨PDB
+----------------------------------------------------12C PDB/è´¦å·åˆ›å»º----------------------------------------------------
+1 . åˆ›å»ºPDB
 oracle@oracle12c01:~>
 oracle@oracle12c01:~> sqlplus / as sysdba
 SQL*Plus: Release 12.1.0.1.0 Production on Thu Oct 30 15:47:59 2014
@@ -790,7 +795,7 @@ Connected to:
 Oracle Database 12c Enterprise Edition Release 12.1.0.1.0 - 64bit Production
 With the Partitioning, Real Application Clusters, Automatic Storage Management, OLAP,
 Advanced Analytics and Real Application Testing options
---²é¿´ÒÑÓĞpdbĞÅÏ¢
+--æŸ¥çœ‹å·²æœ‰pdbä¿¡æ¯
 SQL> select name from v$pdbs;
 NAME
 ------------------------------
@@ -805,15 +810,15 @@ BOZ_PDB
 HUAIN_PDB
 SQL>
 
---´´½¨ Âí°°É½12c pdb
+--åˆ›å»º é©¬éå±±12c pdb
 SQL> create pluggable database mas_pdb admin user mas_adm identified by mas_adm;;
 Pluggable database created.
 SQL>
---Æô¶¯pdb
+--å¯åŠ¨pdb
 SQL> alter pluggable database mas_pdb open;
 Pluggable database altered.
 
---²é¿´PDB×´Ì¬
+--æŸ¥çœ‹PDBçŠ¶æ€
 SQL> select name,open_mode from v$pdbs;
 
 NAME OPEN_MODE
@@ -831,7 +836,7 @@ MAS_PDB READ WRITE
 
 10 rows selected.
 
---ÇĞ»»µ½pdb
+--åˆ‡æ¢åˆ°pdb
 SQL> alter session set container=MAS_PDB;
 Session altered.
 SQL>
@@ -841,7 +846,7 @@ CON_NAME
 ------------------------------
 MAS_PDB
 SQL>
---²é¿´Ä¬ÈÏ±í¿Õ¼ä´óĞ¡
+--æŸ¥çœ‹é»˜è®¤è¡¨ç©ºé—´å¤§å°
 SQL> SELECT D.TABLESPACE_NAME,SPACE "SUM_SPACE(M)",BLOCKS SUM_BLOCKS,SPACE - NVL(FREE_SPACE, 0) "USED_SPACE(M)",
 2 ROUND((1 - NVL(FREE_SPACE, 0) / SPACE) * 100, 2) "USED_RATE(%)", FREE_SPACE "FREE_SPACE(M)"
 3 FROM (SELECT TABLESPACE_NAME, ROUND(SUM(BYTES) / (1024 * 1024), 2) SPACE, SUM(BLOCKS) BLOCKS
@@ -863,7 +868,7 @@ FILE_NAME
 +DATADG1/DSCDB/06A01FD2B2CDB976E0537600F30ADFE3/DATAFILE/system.361.862328989
 +DATADG1/DSCDB/06A01FD2B2CDB976E0537600F30ADFE3/DATAFILE/sysaux.360.862328987
 
---À©´óÏµÍ³±í¿Õ¼ä
+--æ‰©å¤§ç³»ç»Ÿè¡¨ç©ºé—´
 SQL> alter database datafile '+DATADG1/DSCDB/06A01FD2B2CDB976E0537600F30ADFE3/DATAFILE/system.361.862328989' resize 2g;
 Database altered.
 SQL>
@@ -884,7 +889,7 @@ SYSAUX 2048 262144 633.19 16.94 1890
 SYSTEM 2048 262144 255.12 12.46 1792.88
 
 SQL>
---×¢Òâ¼ì²éASMÊ¹ÓÃÇé¿ö
+--æ³¨æ„æ£€æŸ¥ASMä½¿ç”¨æƒ…å†µ
 oracle@oracle12c01:~> su - grid
 Password:
 grid@oracle12c01:~>
@@ -905,12 +910,12 @@ OCRDG 2048 1748
 
 SQL>
 
-2.´´½¨¸öÈË/³ÌĞòÕËºÅ¼°ÊÚÈ¨
-°´ÕÕ¸öÈËÕËºÅ/³ÌĞòÕËºÅ¹æ·¶½øĞĞ´´½¨
-3.Ìá½»¹¤µ¥²¢¸½¼ÓĞÅÏ¢
-ÕËºÅÃÜÂë£º
+2.åˆ›å»ºä¸ªäºº/ç¨‹åºè´¦å·åŠæˆæƒ
+æŒ‰ç…§ä¸ªäººè´¦å·/ç¨‹åºè´¦å·è§„èŒƒè¿›è¡Œåˆ›å»º
+3.æäº¤å·¥å•å¹¶é™„åŠ ä¿¡æ¯
+è´¦å·å¯†ç ï¼š
 boz12c / Pkd!982x
-±í¿Õ¼ä£º
+è¡¨ç©ºé—´ï¼š
 tbs_cuz_data 64G
 tbs_cuz_idx 32G
 TNS:
@@ -925,11 +930,11 @@ boz_pdb=
 
 ************************************************************************************************************************************/
 
----expµ¼³ö
+---expå¯¼å‡º
 exp \'\/ as sysdba\' tables=APPS.CW_KMYE,APPS.CW_PZ,APPS.CW_YSZK,APPS.CW_YFZK,APPS.CW_YFMX,APPS.CW_YSMX,APPS.CW_GDZC,APPS.CW_GYS,APPS.CW_CGDDZB2,APPS.CW_CGDDMX2,APPS.CW_KJKM,APPS.CW_PZBHDYB file=/data/ahprd/anhui201410-201504.dmp buffer=20480000 log=/data/ahprd/anhui201410-201504.log
 
 
----×Ô¶¯ÇåÀí¹éµµ
+---è‡ªåŠ¨æ¸…ç†å½’æ¡£
 40 * * * * sh /home/oracle/wangt/delete_arch.sh >/home/oracle/wangt/delete_arch.sh.out
 vi delete_arch.sh
 . ~/.bash_profile
@@ -939,14 +944,14 @@ yes
 exit
 EOF
 
---ÇåÀí¹éµµ
+--æ¸…ç†å½’æ¡£
 rman target /
 crosscheck archivelog all;
-delete archivelog all  ;£¨È«Çå£©
---Ö¸¶¨É¾³ı7ÌìÇ°µÄ¹éµµÈÕÖ¾
-DELETE ARCHIVELOG ALL COMPLETED BEFORE 'SYSDATE-7'£»
+delete archivelog all  ;ï¼ˆå…¨æ¸…ï¼‰
+--æŒ‡å®šåˆ é™¤7å¤©å‰çš„å½’æ¡£æ—¥å¿—
+DELETE ARCHIVELOG ALL COMPLETED BEFORE 'SYSDATE-7'ï¼›
 
-----vmstatµÈÀúÊ·ĞÅÏ¢
+----vmstatç­‰å†å²ä¿¡æ¯
 /ray/pflog
 
 ----kill_job
@@ -969,12 +974,12 @@ OWNER_NAME           JOB_NAME                         OPERATION     JOB_MODE   S
 ---------------            ------------------------------              -------------------- -------------------- ------------------------------ ----------      -----------------                        -----------------
 SYSTEM               SYS_EXPORT_SCHEMA_01        EXPORT        SCHEMA         NOT RUNNING                   0                                     0                                     0
 
-¶ÔÓÚstate not runningµÄ¿ÉÒÔÖ±½ÓÉ¾³ı¼È¿É
+å¯¹äºstate not runningçš„å¯ä»¥ç›´æ¥åˆ é™¤æ—¢å¯
 drop table system.SYS_EXPORT_SCHEMA_01 purge;
 SQL> select * from DBA_DATAPUMP_JOBS;
 no rows selected
 
-----get_ind_ddl ÅúÁ¿»ñÈ¡½¨Ë÷ÒıÓï¾ä
+----get_ind_ddl æ‰¹é‡è·å–å»ºç´¢å¼•è¯­å¥
 vi cfg.txt
 DBCUSTADM    IDX_CT_CUST_INFO_GROUPID
 DBCUSTADM    IDX_CT_CUSTCONTACT_INFO_0
@@ -996,19 +1001,19 @@ quit
 !
 done
 
----Çå¿Õ»ØÊÕÕ¾,ÖØĞÂ¼ì²é²îÒìµÄ¶ÔÏó
+---æ¸…ç©ºå›æ”¶ç«™,é‡æ–°æ£€æŸ¥å·®å¼‚çš„å¯¹è±¡
 purge dba_RECYCLEBIN;
 
-----±àÒëÊ§Ğ§¶ÔÏó
+----ç¼–è¯‘å¤±æ•ˆå¯¹è±¡
 alter PACKAGE BODY Csettora.PAPER_IMPORT compile;
 select'alter'||object_type||''||owner||'.'||object_name ||' compile;' from dba_objects where STATUS='INVALID' and owner in ('Csettora'); 
 
-----×¥È¡½¨dblinkÓï¾ä
+----æŠ“å–å»ºdblinkè¯­å¥
 select dbms_metadata.get_ddl('DB_LINK','YZDB','CCMOS') from dual;
 
-----´´½¨Îï»¯ÊÓÍ¼Ç°ÏÈÉ¾³ıÍ¬ÃûµÄ±í
-drop table  "CCMOS"."T_V_BZDETAIL"£»
-----ÅúÁ¿×¥È¡½¨Îï»¯ÊÓÍ¼Óï¾ä
+----åˆ›å»ºç‰©åŒ–è§†å›¾å‰å…ˆåˆ é™¤åŒåçš„è¡¨
+drop table  "CCMOS"."T_V_BZDETAIL"ï¼›
+----æ‰¹é‡æŠ“å–å»ºç‰©åŒ–è§†å›¾è¯­å¥
 conn  / as sysdba
 set heading off;
 set pages 0
@@ -1041,35 +1046,35 @@ EOF
 done;
 *************************************************************************** 
 
-----Ìí¼Ó¸½¼ÓÈÕÖ¾
+----æ·»åŠ é™„åŠ æ—¥å¿—
 ALTER TABLE "WFCFG"."T_WF_PREPORT1086HIS_LAJI"
 ADD SUPPLEMENTAL LOG GROUP "GGS_T_WF_PREPORT108_36103" ("INDICTSEQ","SVCTYPEID","HOMEPROV","ACCEPTTIME","CALLER_NO","CALLEE_NO","MSISDN","SUBSNAME") ALWAYS;
 
 add trandata DBACCADM.UR_MONI_USER_INFO
 
 
-----É¾³ı¸½¼ÓÈÕÖ¾
+----åˆ é™¤é™„åŠ æ—¥å¿—
 ALTER TABLE WFCFG.T_WF_PREPORT1086HIS_LAJI  DROP SUPPLEMENTAL LOG GROUP GGS_T_WF_PREPORT108_36103;
 
-----9i»ñÈ¡scn
+----9iè·å–scn
 col get_system_change_number for 9999999999999999999999999
 select dbms_flashback.get_system_change_number from dual;
 
-----ºóÌ¨sqlplus
+----åå°sqlplus
 nohup sqlplus '/ as sysdba' @wres1_20141223_create_syn > wres1_20141223_create_syn.sql.out &
 
-----Í³¼ÆĞÅÏ¢ËøĞÅÏ¢
+----ç»Ÿè®¡ä¿¡æ¯é”ä¿¡æ¯
 select owner, table_name, stattype_locked from dba_tab_statistics where stattype_locked is not null and owner not in ('SYS','SYSTEM');
 select 'exec DBMS_STATS.UNLOCK_TABLE_STATS('''||owner||''','''||table_name||''');' from dba_tab_statistics where stattype_locked is not null and owner not in ('SYS','SYSTEM')
 
---Ëø¶¨Í³¼ÆÊÕ¼¯
+--é”å®šç»Ÿè®¡æ”¶é›†
 exec dbms_stats.unlock_table_stats('FSZW','IB_ACC_YHFEELORGBILL');
 exec dbms_stats.lock_table_stats('FSZW','IB_ACC_YHFEELORGBILL');
 
 select last_analyzed ,STATTYPE_LOCKED,table_name,partition_name from dba_tab_statistics where
 owner='FSZW' and table_name='IB_ACC_YHFEELORGBILL';
 
-----²é¿´Ä³¸öÊ±¼äµãµÄÊı¾İ
+----æŸ¥çœ‹æŸä¸ªæ—¶é—´ç‚¹çš„æ•°æ®
 select count(*) from DBCUSTADM.UR_USERIMSI_INFO as of timestamp TO_TIMESTAMP('2014-12-29 15:30:00','YYYY-MM-DD HH:MI:SS');
 
 select count(*)
@@ -1077,7 +1082,7 @@ from DBCUSTADM.CT_BLACKLIST_INFO
 AS OF TIMESTAMP to_timestamp('2014-12-29 15:54:02','YYYY-MM-DD hh24:mi:ss');
 
 
-----ftpµÄ´«Êä½Å±¾
+----ftpçš„ä¼ è¾“è„šæœ¬
 vi  ftp_gg_dat_20130913.sh
 
 ftp -inv 10.252.25.129  <<!
@@ -1105,7 +1110,7 @@ bye
 !
 exit
 
-----ÔÂ¶ÈÑ²¼ìĞÅÏ¢ÊÕ¼¯ftp
+----æœˆåº¦å·¡æ£€ä¿¡æ¯æ”¶é›†ftp
 for i in 10.153.177.73 10.153.177.75
 do
 ftp -n ${i} <<!
@@ -1119,7 +1124,7 @@ bye
 !
 done
 
-----¼ì²é³¤ÊÂÎñ
+----æ£€æŸ¥é•¿äº‹åŠ¡
 alter session set nls_date_format='yyyy-mm-dd hh24:mi:ss';
 col event for a30
 col OSUSER for a10
@@ -1131,7 +1136,7 @@ FROM gv$session s,gv$transaction t
 WHERE s.INST_ID=t.INST_ID and s.saddr=t.ses_addr
 order by  t.start_time desc;
 
-----³¤ÊÂÎïsql_idÒÑ²»´æÔÚ£¬²é¿´Ö®Ç°µÄ sql_id
+----é•¿äº‹ç‰©sql_idå·²ä¸å­˜åœ¨ï¼ŒæŸ¥çœ‹ä¹‹å‰çš„ sql_id
 alter session set nls_date_format='yyyy-mm-dd hh24:mi:ss';
 col event for a30
 col OSUSER for a10
@@ -1144,7 +1149,7 @@ WHERE s.INST_ID=t.INST_ID and s.saddr=t.ses_addr
 order by  t.start_time desc;
 
 
--- sqlplusÉú²úxlsµÄexcelÎÄ¼ş
+-- sqlplusç”Ÿäº§xlsçš„excelæ–‡ä»¶
 connect / as sysdba;
 SET NEWPAGE 0
 SET SPACE 0
@@ -1161,18 +1166,18 @@ spool c:abc.xls
 select * from tab;
 spool off;
 
--- ÈçºÎÔÚexcelµÄÃ¿Ò»ĞĞÊı¾İºóÃæ²åÈëÒ»¸ö¶ººÅ                                                                                   
-----ÓÃ×Ô¶¨Òå¸ñÊ½¿ÉÒÔ½â¾ö                                                                                             
-    Ñ¡ÖĞÒª¼Ó¡°,¡±µÄĞĞ¡úÓÒ»÷¡úÉèÖÃµ¥Ôª¸ñ¸ñÊ½¡úÊı×Ö¡ú×Ô¶¨Òå¡úÔÚ¡°ÀàĞÍ¡±ÏÂÊäÈë£º@","(""Ò»¶¨ÒªÔÚÓ¢ÎÄ×´Ì¬ÏÂÊäÈë£©¡úÈ·¶¨
+-- å¦‚ä½•åœ¨excelçš„æ¯ä¸€è¡Œæ•°æ®åé¢æ’å…¥ä¸€ä¸ªé€—å·                                                                                   
+----ç”¨è‡ªå®šä¹‰æ ¼å¼å¯ä»¥è§£å†³                                                                                             
+    é€‰ä¸­è¦åŠ â€œ,â€çš„è¡Œâ†’å³å‡»â†’è®¾ç½®å•å…ƒæ ¼æ ¼å¼â†’æ•°å­—â†’è‡ªå®šä¹‰â†’åœ¨â€œç±»å‹â€ä¸‹è¾“å…¥ï¼š@","(""ä¸€å®šè¦åœ¨è‹±æ–‡çŠ¶æ€ä¸‹è¾“å…¥ï¼‰â†’ç¡®å®š
 
---¸ù¾İCURRENT_SCNµ¼Êı
+--æ ¹æ®CURRENT_SCNå¯¼æ•°
 col CURRENT_SCN for 9999999999999999
 select CURRENT_SCN from v$database ;   
 
----timeµÃµ½scn
+---timeå¾—åˆ°scn
 select timestamp_to_scn(to_date('2015-01-29 11:16:50','yyyy-mm-dd hh24:mi:ss')) aaa from dual;
 
---scnµÃµ½time
+--scnå¾—åˆ°time
 select scn_to_timestamp(55777932077) from dual;
 
 select scn_to_timestamp(CURRENT_SCN) from v$database;
@@ -1181,13 +1186,13 @@ select scn_to_timestamp(CURRENT_SCN) from v$database;
 insert into ogg.dangtian values('CLEARAPP','B_HT_MMS_01',q'['20150115']','deal_date');
 select '''a''' from dual;
 
------´´½¨DB_LINK
-CREATE [ PUBLIC ]         --Ö¸¶¨ÊÇ·ñÊÇpublic database link,²»Ö¸¶¨ÔòÊÇprivate database link
-DATABASE LINK dblink_name --Ö¸¶¨database link name
+-----åˆ›å»ºDB_LINK
+CREATE [ PUBLIC ]         --æŒ‡å®šæ˜¯å¦æ˜¯public database link,ä¸æŒ‡å®šåˆ™æ˜¯private database link
+DATABASE LINK dblink_name --æŒ‡å®šdatabase link name
 CONNECT TO user           --remote database user
-IDENTIFIED BY password    --remote database user password£¬Õâ¸öpasswordÖ»ÓĞÔÚ´´½¨Ê±ĞèÒªÃ÷ÎÄÊäÈë£¬ÒÔºó»ñÈ¡µÄpassword¶¼ÊÇÃÜÎÄ¼ÓÃÜµÄ
-USING 'connect_string'    --ÕâÀïµÄconnect_string¿ÉÒÔÊÇÖ±½ÓÓÃÁ¬½Óremote database service name£¬
-                                                        Ò²¿ÉÒÔÓÃremote database service name description
+IDENTIFIED BY password    --remote database user passwordï¼Œè¿™ä¸ªpasswordåªæœ‰åœ¨åˆ›å»ºæ—¶éœ€è¦æ˜æ–‡è¾“å…¥ï¼Œä»¥åè·å–çš„passwordéƒ½æ˜¯å¯†æ–‡åŠ å¯†çš„
+USING 'connect_string'    --è¿™é‡Œçš„connect_stringå¯ä»¥æ˜¯ç›´æ¥ç”¨è¿æ¥remote database service nameï¼Œ
+                                                        ä¹Ÿå¯ä»¥ç”¨remote database service name description
 /
 
 create public database link old_integ
@@ -1215,7 +1220,7 @@ minus
 select * from "DBMARKETADM"."MK_PRC_DICT"@sou_wres;
 
 
-ÔÚÔ´¶ËÅäÖÃÄ¿±ê¶ËµÄtns
+åœ¨æºç«¯é…ç½®ç›®æ ‡ç«¯çš„tns
 PMOS =
   (DESCRIPTION =
     (ADDRESS = (PROTOCOL = TCP)(HOST = 10.153.245.12)(PORT = 1521))
@@ -1229,7 +1234,7 @@ PMOS =
   )
 
 
---²é¿´db_link
+--æŸ¥çœ‹db_link
 set linesize 350 pagesize 200
 COL OWNER FOR a10
 col db_link for a40
@@ -1237,7 +1242,7 @@ col username for a10
 col host for a100
 select owner,db_link,username,host,to_char(created,'yyyy-mm-dd hh24:mi:ss') create_date from dba_db_links;
 
---dba_constraints Ô¼Êø
+--dba_constraints çº¦æŸ
 TypeCode    Type Description                                Acts On Level
 C                    Check on a table                                Column
 O                    Read Only on a view                            Object
@@ -1260,7 +1265,7 @@ minus
 select * from obdp1.CHECK_GENERAL_TASK;
 
 
-//²éÕÒÄ³±í±»Ëø×¡
+//æŸ¥æ‰¾æŸè¡¨è¢«é”ä½
 set pages 130;
 set lines 1300;
 col object_name for a20;
@@ -1287,9 +1292,9 @@ order by 1
 
 
 
-----logdumpÊ¹ÓÃ
-1)½øÈë°²×°Ä¿Â¼£¬cd $OGG ,logdumpµÇÂ¼
-2)³£¼ûÉèÖÃ²ÎÊı£º£¨Ìá¸ß¿É¶ÁĞÔ£©
+----logdumpä½¿ç”¨
+1)è¿›å…¥å®‰è£…ç›®å½•ï¼Œcd $OGG ,logdumpç™»å½•
+2)å¸¸è§è®¾ç½®å‚æ•°ï¼šï¼ˆæé«˜å¯è¯»æ€§ï¼‰
     1. To view the record header with the data:
          GHDR ON
     2. To add column information:
@@ -1301,16 +1306,16 @@ order by 1
     5.open ./dirdat/zx/tf056626
     6.pos RBA
 
-----logmnrÊ¹ÓÃ
---Ìí¼ÓÒª·ÖÎöµÄÈÕÖ¾ÎÄ¼ş
+----logmnrä½¿ç”¨
+--æ·»åŠ è¦åˆ†æçš„æ—¥å¿—æ–‡ä»¶
 execute dbms_logmnr.add_logfile(logfilename=>'/arch01/1_50082_852588520.dbf',options=>dbms_logmnr.new);
 execute dbms_logmnr.add_logfile(logfilename=>'/arch01/1_50083_852588520.dbf',options=>dbms_logmnr.addfile);
 execute dbms_logmnr.add_logfile(logfilename=>'/arch01/1_50084_852588520.dbf',options=>dbms_logmnr.addfile);
 
---Æô¶¯LogMiner
+--å¯åŠ¨LogMiner
 execute dbms_logmnr.start_logmnr(Options => DBMS_LOGMNR.DICT_FROM_ONLINE_CATALOG)
 
---²é¿´ÈÕÖ¾·ÖÎö½á¹û
+--æŸ¥çœ‹æ—¥å¿—åˆ†æç»“æœ
 select username,scn,timestamp,sql_redo from v$logmnr_contents;
 
 set pagesize 2000 line 400
@@ -1321,10 +1326,10 @@ select username,timestamp,sql_redo from v$logmnr_contents
 where lower(sql_redo) like '%datafile%';
 
 
---½áÊøLogMiner
+--ç»“æŸLogMiner
 execute dbms_logmnr.end_logmnr;
 
---½ÓÉÏ£¬logmnr»ñÈ¡µ¼³öĞèÒªµÄSCN
+--æ¥ä¸Šï¼Œlogmnrè·å–å¯¼å‡ºéœ€è¦çš„SCN
 ALTER SESSION FORCE PARALLEL QUERY PARALLEL 16;
 set numwidth 30
 col THREAD# for 99999999
@@ -1333,30 +1338,30 @@ from v$logmnr_contents
 group by THREAD#
 order by 2;
 
---É¾³ı¸½¼ÓÈÕÖ¾
+--åˆ é™¤é™„åŠ æ—¥å¿—
 set lin 180 pagesize 0
 select 'alter table '||owner||'.'||table_name||' drop supplemental log group '||LOG_GROUP_NAME||';'
 from dba_log_groups
 where table_name like 'MK_USERLABEL_INFO_%';
 
---ÔÚÖØĞÂÌí¼Ó¸½¼ÓÈÕÖ¾
+--åœ¨é‡æ–°æ·»åŠ é™„åŠ æ—¥å¿—
 select 'add trandata '||owner||'.'||table_name
 from dba_tables
 where table_name like 'MK_USERLABEL_INFO_%';
 
---¼ì²éÊÇ·ñÓĞÌí¼ÓÒÅÂ©µÄ
+--æ£€æŸ¥æ˜¯å¦æœ‰æ·»åŠ é—æ¼çš„
 select owner,table_name from ogg.CELUE_1501
 minus
 select owner,table_name from dba_log_groups;
 
---impdpµ¼ÈëORA-39242
-ORA-39242: Unable to export/import TABLE_DATA: ¡­ due to table attributes.
+--impdpå¯¼å…¥ORA-39242
+ORA-39242: Unable to export/import TABLE_DATA: â€¦ due to table attributes.
     Check table attributes as it says. May be the indexes are in UNUSABLE state!!!
---²é¿´Ë÷Òı×´Ì¬
+--æŸ¥çœ‹ç´¢å¼•çŠ¶æ€
     select OWNER,INDEX_NAME,STATUS from dba_indexes where TABLE_NAME='B_HT_MMS_12';
     alter index CLEARAPP.B_HT_MMS_12_PK rebuild;
 
---×Ô¶¯µ¼³ö´«Êä
+--è‡ªåŠ¨å¯¼å‡ºä¼ è¾“
 /* bcv_gg_auto_dat_owner_seq_query.sh
 . /settora/.profile
 #Used by OGG AUTO EXP WITH SCN
@@ -1460,8 +1465,8 @@ rm -rf exp_gg_auto_"$V_OWNER"_"$V_SEQ"_??.dmp
 exit
 */
 
-/* µ¼Êıselect Óï¾ä
-----ÇåÀíÊı¾İµÄ±í
+/* å¯¼æ•°select è¯­å¥
+----æ¸…ç†æ•°æ®çš„è¡¨
 drop table ogg.to_clear_tab_1228;
 create table ogg.to_clear_tab_1228 (
  owner varchar2(30),
@@ -1568,10 +1573,10 @@ CLEARAPP:ROAM_STAT_11:WHERE NOT(YEAR<2013) OR YEAR IS NULL
 CLEARAPP:ROAM_STAT_12:WHERE NOT(YEAR<2013) OR YEAR IS NULL
 */
 
---¼ì²é½ØÈ¡×Ö·û
+--æ£€æŸ¥æˆªå–å­—ç¬¦
 head -1  to_clear.txt|awk -F\: '{print "insert into ogg.to_clear_tab_1228 values('\''"$1"'\'','\''"$2"'\'','\''"$3"'\'');"}'
 
---²åÈë ÇåÀíÊı¾İµÄ±í ÖĞ
+--æ’å…¥ æ¸…ç†æ•°æ®çš„è¡¨ ä¸­
 cat  to_clear.txt|awk -F\: '{print "insert into ogg.to_clear_tab_1228 values('\''"$1"'\'','\''"$2"'\'','\''"$3"'\'');"}'>to_clear.sql
 @to_clear.sql
 select count(*) from   ogg.to_clear_tab_1228;
@@ -1622,7 +1627,7 @@ select 'echo "'||STR||&tar_str||'">>'||&exp_file||''||to_char(mod(rownum,4)+1)||
 */
 
 ------------------------------
-#####vmstat Êä³ö
+#####vmstat è¾“å‡º
 while true;do
 
 echo "----------------------`date`-----------------------------"
@@ -1631,7 +1636,7 @@ sleep 1
 vmstat 1 10
 done;
 
-/*Ä¬ÈÏÊä³ö
+/*é»˜è®¤è¾“å‡º
 
 while true;do
 
@@ -1684,20 +1689,20 @@ done;
 */
 
 
-¡¾resize¡¿
-Èç¹ûÊ±¼ä¹»ÓÃÔò°´²½ÖèÖ´ĞĞ£¬Èç¹û·Ç³£½ô¼±ÔòÖ±½Ó×ö"resize datafile"²½Öè
---Ë÷Òı±í¿Õ¼äresize
-1.·ÖÎöË÷Òı
+ã€resizeã€‘
+å¦‚æœæ—¶é—´å¤Ÿç”¨åˆ™æŒ‰æ­¥éª¤æ‰§è¡Œï¼Œå¦‚æœéå¸¸ç´§æ€¥åˆ™ç›´æ¥åš"resize datafile"æ­¥éª¤
+--ç´¢å¼•è¡¨ç©ºé—´resize
+1.åˆ†æç´¢å¼•
 analyze index owner.index_name validate structure;
-2.²éÑ¯Ë÷ÒıËéÆ¬
+2.æŸ¥è¯¢ç´¢å¼•ç¢ç‰‡
 SELECT NAME,
        del_lf_rows_len,
        lf_rows_len,
        (del_lf_rows_len / lf_rows_len) * 100
   FROM index_stats
-3.ºÏ²¢ËéÆ¬
+3.åˆå¹¶ç¢ç‰‡
 alter index owner.index_name coalesce;
-4.resize datafile --Ö´ĞĞÊ±¼ä½Ï¿ì
+4.resize datafile --æ‰§è¡Œæ—¶é—´è¾ƒå¿«
 SELECT 'ALTER DATABASE DATAFILE ''' || t1.file_name || ''' RESIZE ' ||
        (ceil(total_gb - free_gb) + 1)||'G;' AS used_gb
   FROM (SELECT tablespace_name,
@@ -1719,15 +1724,15 @@ USED_GB
 ALTER DATABASE DATAFILE '+JMCRMDG/jmcrmdb/datafile/yj_im_ind.401.802490541' RESIZE 9G;
 ALTER DATABASE DATAFILE '+JMCRMDG/jmcrmdb/datafile/yj_im_ind.372.802491201' RESIZE 8G;
 ALTER DATABASE DATAFILE '+JMCRMDG/jmcrmdb/datafile/yj_im_ind.344.802488355' RESIZE 9G;
-ps:Ö´ĞĞÏÂÃæµÄÓï¾ä²éÕÒ¸ü×¼È·µ«ÊÇÖ´ĞĞÊ±¼äÏàµ±Âı:
+ps:æ‰§è¡Œä¸‹é¢çš„è¯­å¥æŸ¥æ‰¾æ›´å‡†ç¡®ä½†æ˜¯æ‰§è¡Œæ—¶é—´ç›¸å½“æ…¢:
  SELECT file_id, tablespace_name, SUM(bytes) / 1024 / 1024
    FROM dba_extents
   WHERE file_id IN (857, 858)
   GROUP BY file_id, tablespace_name
   ORDER BY 1;
 ==============================================================================================
---Êı¾İ±í¿Õresize
-1.¶Ô±í¿Õ¼äµÄ±í¸ßË®Î»¼ì²é
+--æ•°æ®è¡¨ç©ºresize
+1.å¯¹è¡¨ç©ºé—´çš„è¡¨é«˜æ°´ä½æ£€æŸ¥
 SELECT owner,
        table_name,
        blocks * 8 / 1024 size_m,
@@ -1735,7 +1740,7 @@ SELECT owner,
   FROM dba_tables
  WHERE table_name = 'T_SCE_OTHERNUMBERSEGMENTOFGD'
    AND owner = 'ICDFL';
-2.¶ÔÓÚ½Ï¸ßµÄ¸ßË®Î»
+2.å¯¹äºè¾ƒé«˜çš„é«˜æ°´ä½
 alter table owner.table_name enable row movement;
 alter table owner.table_name shrink space;
 alter table owner.table_name disable row movement;
@@ -1762,10 +1767,10 @@ USED_GB
 ALTER DATABASE DATAFILE '+JMCRMDG/jmcrmdb/datafile/yj_im_ind.401.802490541' RESIZE 9G;
 ALTER DATABASE DATAFILE '+JMCRMDG/jmcrmdb/datafile/yj_im_ind.372.802491201' RESIZE 8G;
 ALTER DATABASE DATAFILE '+JMCRMDG/jmcrmdb/datafile/yj_im_ind.344.802488355' RESIZE 9G;
-Èı.
+ä¸‰.
 select 'ALTER TABLESPACE '||TABLESPACE_NAME||'coalesce;' from dba_tablespaces
 ==============*****************==============
---ĞèÒª½øĞĞÊÕËõµÄ±í¿Õ¼ä
+--éœ€è¦è¿›è¡Œæ”¶ç¼©çš„è¡¨ç©ºé—´
 SET LINESIZE 250
 SET PAGESIZE 1000
 col tablespace_name for a25
@@ -1787,7 +1792,7 @@ TABLESPACE_NAME | SUM_SPACE(M) | SUM_BLOCKS | USED_SPACE(M) | USED_RATE(%) | FRE
 JMCRMREP_IND | 92160 | 11796480 | 3 | 0 | 92157
 JM_YY_IND | 122880 | 15728640 | 4 | 0 | 122876
 JM_YY_DATA | 122880 | 15728640 | 4 | 0 | 122876
---²éÑ¯ÕâĞ©±í¿Õ¼äÄÚÊÇ·ñÓĞ¶ÔÏó´æÔÚ
+--æŸ¥è¯¢è¿™äº›è¡¨ç©ºé—´å†…æ˜¯å¦æœ‰å¯¹è±¡å­˜åœ¨
 10:46:02 sys@jmrptdb1(gdcrm-rptdb1)> set lin 130 pagesize 999
 10:46:11 sys@jmrptdb1(gdcrm-rptdb1)> col owner for a15
 10:46:11 sys@jmrptdb1(gdcrm-rptdb1)> col segment_name for a30
@@ -1803,7 +1808,7 @@ JM_YY_DATA | 122880 | 15728640 | 4 | 0 | 122876
 no rows selected
 Elapsed: 00:00:00.40
 10:46:12 sys@jmrptdb1(gdcrm-rptdb1)>
---²éÑ¯ÕâĞ©±í¿Õ¼äµÄÊı¾İÎÄ¼ş¼°Æä´óĞ¡
+--æŸ¥è¯¢è¿™äº›è¡¨ç©ºé—´çš„æ•°æ®æ–‡ä»¶åŠå…¶å¤§å°
 col FILE_NAME for a62
 select FILE_NAME,FILE_ID,TABLESPACE_NAME,BYTES/1024/1024/1024, STATUS from dba_data_files where TABLESPACE_NAME in ('JM_YY_IND',
 'JMCRMREP_IND',
@@ -1824,9 +1829,9 @@ FILE_NAME | FILE_ID | TABLESPACE_NAME | BYTES/1024/1024/1024 | STATUS
 +JMCRMRPTDG/jmrptdb/datafile/jm_yy_ind.260.817903803 | 32 | JM_YY_IND | 30 | AVAILABLE
 +JMCRMRPTDG/jmrptdb/datafile/jm_yy_ind.259.817903859 | 33 | JM_YY_IND | 30 | AVAILABLE
 11 rows selected.
---È·ÈÏµ±Ç°ÊµÀıÎªJMRPTDB1ÊµÀı
+--ç¡®è®¤å½“å‰å®ä¾‹ä¸ºJMRPTDB1å®ä¾‹
 select instance_name from gv$instance;
---Ö´ĞĞÊÕËõÓï¾ä
+--æ‰§è¡Œæ”¶ç¼©è¯­å¥
 alter /* AP_HW_20140107_2766842 */ database datafile '+JMBSSRPTDG/jmrptdb/datafile/jmcrmrep_ind.268.804037563' resize 1G;
 alter /* AP_HW_20140107_2766842 */ database datafile '+JMBSSRPTDG/jmrptdb/datafile/jmcrmrep_ind.269.804037463' resize 1G;
 alter /* AP_HW_20140107_2766842 */ database datafile '+JMBSSRPTDG/jmrptdb/datafile/jmcrmrep_ind.267.804037687' resize 1G;
@@ -1841,11 +1846,11 @@ alter /* AP_HW_20140107_2766842 */ database datafile '+JMCRMRPTDG/jmrptdb/datafi
 ======================*******************=====================================
 
 
-Ó¦¼±¿âÒòÎŞºÏÊÊË÷Òı¶øµ¼ÖÂÍ¬²½»ºÂıµÄ´¦ÀíÀı×Ó
+åº”æ€¥åº“å› æ— åˆé€‚ç´¢å¼•è€Œå¯¼è‡´åŒæ­¥ç¼“æ…¢çš„å¤„ç†ä¾‹å­
 info all
 REPLICAT    RUNNING     R_ZX_50P    01:34:02      00:05:29   
 
-1¡¢È·ÈÏÊ²Ã´SQLµ¼ÖÂÍ¬²½»ºÂı
+1ã€ç¡®è®¤ä»€ä¹ˆSQLå¯¼è‡´åŒæ­¥ç¼“æ…¢
 h7sd03dd:/oradata/arch01/ogg#ps -ef|grep  R_ZX_50P
   oracle 21249 21099  0 11:25:07 pts/4     0:00 grep R_ZX_50P
   oracle 18084 17854  0  Sep 13  ?         5:54 /oradata/arch01/ogg/replicat PARAMFILE /oradata/arch01/ogg/dirprm/R_ZX_50P.prm REPORTFILE /oradata/arch01/ogg/dirrpt/R_ZX_50P.r
@@ -1876,7 +1881,7 @@ new   3: where s.paddr=p.addr and p.spid='18085'
 
 g3m6f5wx4rvau                                                                                                                                  e
 g3m6f5wx4rvau
-2¡¢·ÖÎöSQLÓï¾ä
+2ã€åˆ†æSQLè¯­å¥
 SQL> !ora plan g3m6f5wx4rvau
 
 Session altered.
@@ -1934,8 +1939,8 @@ COUNT(DISTINCTPHONE_NO)   COUNT(*)
 
 DBMARKETADM.MK_IMPORTCUST_TMP
 
-3¡¢·ÖÎörptÎÄ¼ş
-´Órpt¿ÉÒÔ¿´µ½Í¬²½ËÙ¶ÈÊ®·Ö»ºÂı£¬Ò»ÃëÖÓÖ»ÄÜ´¦Àí6Ìõ¼ÇÂ¼
+3ã€åˆ†ærptæ–‡ä»¶
+ä»rptå¯ä»¥çœ‹åˆ°åŒæ­¥é€Ÿåº¦ååˆ†ç¼“æ…¢ï¼Œä¸€ç§’é’Ÿåªèƒ½å¤„ç†6æ¡è®°å½•
               130896 records processed as of 2014-09-15 11:07:40 (rate 0,delta 6)
               131266 records processed as of 2014-09-15 11:08:40 (rate 0,delta 6)
               131638 records processed as of 2014-09-15 11:09:40 (rate 0,delta 6)
@@ -1949,14 +1954,14 @@ DBMARKETADM.MK_IMPORTCUST_TMP
               134650 records processed as of 2014-09-15 11:17:41 (rate 0,delta 6)
               135033 records processed as of 2014-09-15 11:18:41 (rate 0,delta 6)
 
-4¡¢Í£Ö¹OGG
-³¢ÊÔSTOPÃüÁîÍ£Ö¹OGG
+4ã€åœæ­¢OGG
+å°è¯•STOPå‘½ä»¤åœæ­¢OGG
 stop R_ZX_50P
 
-Ò»Ö±Ã»Í£ÏÂÀ´£¬ÓÚÊÇÇ¿ĞĞÖÕÖ¹
+ä¸€ç›´æ²¡åœä¸‹æ¥ï¼Œäºæ˜¯å¼ºè¡Œç»ˆæ­¢
 kill R_ZX_50P
 
---È·ÈÏ´Ë±íÉæ¼°µÄÊÂÎñÒÑ¾­ÖÕÖ¹
+--ç¡®è®¤æ­¤è¡¨æ¶‰åŠçš„äº‹åŠ¡å·²ç»ç»ˆæ­¢
 set pages 130;
 set lines 1300;
 col object_name for a20;
@@ -1988,11 +1993,11 @@ new  13: and object_name=upper('MK_IMPORTCUST_TMP') and o.owner=upper('DBMARKETA
 no rows selected
 
 
-¼ì²éÈ·ÈÏ½ø³ÌÒÑ¾­ÖÕÖ¹
+æ£€æŸ¥ç¡®è®¤è¿›ç¨‹å·²ç»ç»ˆæ­¢
 h7sd03dd:/oradata/arch01/ogg#ps -ef|grep 18085
   oracle 29402 21099  0 11:50:42 pts/4     0:00 grep 18085
 
-5¡¢´´½¨Ë÷Òı²¢Í³¼ÆÊÕ¼¯
+5ã€åˆ›å»ºç´¢å¼•å¹¶ç»Ÿè®¡æ”¶é›†
 SQL> CREATE INDEX "OGG"."MK_IMPORTCUST_TMP_PHONE_NO" ON "DBMARKETADM"."MK_IMPORTCUST_TMP" ("PHONE_NO")  parallel 32;
 Index created.
 
@@ -2002,11 +2007,11 @@ Index altered.
 SQL> exec DBMS_STATS.GATHER_TABLE_STATS(ownname=>'DBMARKETADM',tabname=>'MK_IMPORTCUST_TMP',ESTIMATE_PERCENT=>10,method_opt=>'for all columns size 1',cascade=>true,force=>true,degree=>8,no_invalidate=>FALSE);
 PL/SQL procedure successfully completed.
 
-6¡¢ÖØÆô½ø³Ì£¬¹Û²ìrpt£¬¿É¿´µ½ËÙ¶ÈÌáÉı
+6ã€é‡å¯è¿›ç¨‹ï¼Œè§‚å¯Ÿrptï¼Œå¯çœ‹åˆ°é€Ÿåº¦æå‡
 99332 records processed as of 2014-09-15 11:39:42 (rate 1655,delta 1655)
 
 
----Ïêµ¥²éÑ¯¿â1
+---è¯¦å•æŸ¥è¯¢åº“1
 ssh oracle@10.153.179.41
 /oracle/app/oracle/product/11.2.0/dbhome_1/log/diag/tnslsnr/h7sd05da/db_listener_1622/alert
 /oracle/app/oracle/product/11.2.0/dbhome_1/log/diag/tnslsnr/h7sd05da/db_listener_1621/trace
@@ -2016,7 +2021,7 @@ grid
 /oracle/app/11.2.0/grid/log/diag/tnslsnr/h7sd05da/listener/trace
 /oracle/app/11.2.0/grid/log/diag/tnslsnr/h7sd05da/listener/alert
 
----Ïêµ¥²éÑ¯¿â2
+---è¯¦å•æŸ¥è¯¢åº“2
 ssh oracle@10.153.179.42
 /oracle/app/oracle/product/11.2.0/dbhome_1/log/diag/tnslsnr/h7sd06da/db_listener_1622/trace
 /oracle/app/oracle/product/11.2.0/dbhome_1/log/diag/tnslsnr/h7sd06da/db_listener_1622/alert
@@ -2027,11 +2032,11 @@ grid
 /oracle/app/grid/diag/tnslsnr/h7sd06da/listener/trace
 /oracle/app/11.2.0/grid/log/diag/tnslsnr/h7sd06da/listener_scan1/alert
 
-----ÀúÊ·sql_id
+----å†å²sql_id
 select SQL_ID,SAMPLE_TIME from dba_hist_active_sess_history where SESSION_ID=5401;
 
 
-----Æ´½Ó±íÖĞµÄÁĞ
+----æ‹¼æ¥è¡¨ä¸­çš„åˆ—
 select listagg(decode(data_type,'DATE',
 'to_char('||column_name||',''yyyy-mm-dd hh24:mi:ss'')',column_name),'||''|''||') within group (order by column_id) x
 from dba_tab_cols where owner='SYS' and table_name='DBA_TABLES';
@@ -2039,12 +2044,12 @@ from dba_tab_cols where owner='SYS' and table_name='DBA_TABLES';
 select OWNER||'|'||TABLE_NAME||'|'||TABLESPACE_NAME||'|'||CLUSTER_NAME||'|'||IOT_NAME||'|'||STATUS||'|'||PCT_FREE||'|'||PCT_USED||'|'||INI_TRANS||'|'||MAX_TRANS||'|'||INITIAL_EXTENT||'|'||NEXT_EXTENT||'|'||MIN_EXTENTS||'|'||MAX_EXTENTS||'|'||PCT_INCREASE||'|'||FREELISTS||'|'||FREELIST_GROUPS||'|'||LOGGING||'|'||BACKED_UP||'|'||NUM_ROWS||'|'||BLOCKS||'|'||EMPTY_BLOCKS||'|'||AVG_SPACE||'|'||CHAIN_CNT||'|'||AVG_ROW_LEN||'|'||AVG_SPACE_FREELIST_BLOCKS||'|'||NUM_FREELIST_BLOCKS||'|'||DEGREE||'|'||INSTANCES||'|'||CACHE||'|'||TABLE_LOCK||'|'||SAMPLE_SIZE||'|'||to_char(LAST_ANALYZED,'yyyy-mm-dd hh24:mi:ss')||'|'||PARTITIONED||'|'||IOT_TYPE||'|'||TEMPORARY||'|'||SECONDARY||'|'||NESTED||'|'||BUFFER_POOL||'|'||FLASH_CACHE||'|'||CELL_FLASH_CACHE||'|'||ROW_MOVEMENT||'|'||GLOBAL_STATS||'|'||USER_STATS||'|'||DURATION||'|'||SKIP_CORRUPT||'|'||MONITORING||'|'||CLUSTER_OWNER||'|'||DEPENDENCIES||'|'||COMPRESSION||'|'||COMPRESS_FOR||'|'||DROPPED||'|'||READ_ONLY||'|'||SEGMENT_CREATED||'|'||RESULT_CACHE
 from dba_tables;
 
-----¸ü¸ÄÊ±¼äÊä³ö¸ñÊ½
+----æ›´æ”¹æ—¶é—´è¾“å‡ºæ ¼å¼
 alter session set nls_date_format='yyyy-mm-dd hh24:mi:ss';   
 alter session set nls_timestamp_format='DD-MON-RR HH.MI.SSXFF AM';
 alter session set nls_timestamp_tz_format='DD-MON-RR HH.MI.SSXFF AM';
 
---¸ü¸Äµ±Ç°current_schema
+--æ›´æ”¹å½“å‰current_schema
 alter session set current_schema=OGG;
 
 
@@ -2052,18 +2057,18 @@ alter session set current_schema=OGG;
 http://docs.oracle.com/cd/E11882_01/server.112/e41084/functions183.htm#SQLRF06116
 SYS_CONNECT_BY_PATH
 
---4AÕËºÅÌø×ªÃÜÂë
+--4Aè´¦å·è·³è½¬å¯†ç 
 cmQmek3G
 
-ĞÂÇşµÀÖ§³Å¿â            10.153.178.47/10.153.178.48                 ²ßÂÔÃ»ÓĞ
+æ–°æ¸ é“æ”¯æ’‘åº“            10.153.178.47/10.153.178.48                 ç­–ç•¥æ²¡æœ‰
 
-·şÎñ¿ªÍ¨¿â                10.153.177.25/10.153.177.26                Ö»ÓĞ2G×óÓÒÊÍ·Å
-ĞÂITIL¿â                    10.153.246.81/10.153.246.82                drop/delete
+æœåŠ¡å¼€é€šåº“                10.153.177.25/10.153.177.26                åªæœ‰2Gå·¦å³é‡Šæ”¾
+æ–°ITILåº“                    10.153.246.81/10.153.246.82                drop/delete
 
 
-ĞÂÇşµÀ¾­Àí¿â            10.153.177.55/10.153.177.56                ÇşµÀ³ê½ğ
+æ–°æ¸ é“ç»ç†åº“            10.153.177.55/10.153.177.56                æ¸ é“é…¬é‡‘
 
-++++¸÷Ä¿Â¼Ê¹ÓÃÂÊ
+++++å„ç›®å½•ä½¿ç”¨ç‡
 /dev/vx/dsk/wnpart_oradatadg/lv_wnpart_data01
                    876609536 837534040 38770584   96% /wnpartdata01
 /dev/vx/dsk/wnpart_oradatadg/lv_wnpart_data02
@@ -2083,7 +2088,7 @@ cmQmek3G
 /dev/vx/dsk/wnpart_oradatadg2/lv_wnpart_data09
                    1073741824 1034586760 38849400   96% /wnpartdata09
 
-++++±í¿Õ¼äÊ¹ÓÃÂÊ
+++++è¡¨ç©ºé—´ä½¿ç”¨ç‡
 
 TABLESPACE_NAME      SUM_SPACE(M) USED_SPACE(M) USED_RATE(%) FREE_SPACE(M) REA_USED_RATE(%) REA_FREE_SPACE(M)
 -------------------- ------------ ------------- ------------ ------------- ---------------- -----------------
@@ -2108,7 +2113,7 @@ USERS                        4096             9          .22          4087      
 TIVOLI                       1024             1           .1          1023
 
 
---²éÑ¯Õ¼ÓÃÌØ¶¨±í¿Õ¼ä×î¶àµÄ¶Î£¨Top20£©
+--æŸ¥è¯¢å ç”¨ç‰¹å®šè¡¨ç©ºé—´æœ€å¤šçš„æ®µï¼ˆTop20ï¼‰
 col owner for a16
 col segment_type for a16
 col segment_name for a32
@@ -2184,10 +2189,10 @@ select * from (
 )where rownum<=50;
 
 
---²éÑ¯ĞòÁĞÇé¿ö
+--æŸ¥è¯¢åºåˆ—æƒ…å†µ
 select SEQUENCE_OWNER,SEQUENCE_NAME,INCREMENT_BY,CACHE_SIZE from dba_SEQUENCEs where SEQUENCE_OWNER ='ZJYY' and SEQUENCE_NAME='S_SP_TRANS_SEQ';
 
-´´½¨ĞòÁĞ
+åˆ›å»ºåºåˆ—
 --create SEQUENCE seq
 increment by 1
 start with 1
@@ -2195,10 +2200,10 @@ nocycle
 cache 2000
 order;
 
---ÖØ½¨SEQUENCE(Î´¿¼ÂÇnocache)
+--é‡å»ºSEQUENCE(æœªè€ƒè™‘nocache)
 select 'CREATE SEQUENCE '||SEQUENCE_OWNER||'.'||SEQUENCE_NAME||' MINVALUE '||to_char(MIN_VALUE)||' MAXVALUE '||to_char(MAX_VALUE)||' INCREMENT BY '||to_char(INCREMENT_BY)||' START WITH '||to_char(LAST_NUMBER+CACHE_SIZE*10)||' CACHE '||CACHE_SIZE||case when ORDER_FLAG='N' then ' NOORDER ' else ' ORDER ' end||case when CYCLE_FLAG='N' then ' NOCYCLE;' else ' CYCLE;' end SQL from dba_SEQUENCEs where SEQUENCE_OWNER='FSZW' and sequence_name='SP_SUBSCRIBER_RELATION_SEQ';
 
---´ÓÉú²ú¿â»ñÈ¡ĞòÁĞ¶¨Òå£¬
+--ä»ç”Ÿäº§åº“è·å–åºåˆ—å®šä¹‰ï¼Œ
 select 'CREATE SEQUENCE '||SEQUENCE_OWNER||'.'||SEQUENCE_NAME||' MINVALUE '||to_char(MIN_VALUE)||' MAXVALUE '||to_char(MAX_VALUE)||' INCREMENT BY '||to_char(INCREMENT_BY)||' START WITH '||to_char(LAST_NUMBER+5000)||' CACHE '||CACHE_SIZE||case when ORDER_FLAG='N' then ' NOORDER ' else ' ORDER ' end||case when CYCLE_FLAG='N' then ' NOCYCLE;' else ' CYCLE;' end SQL from dba_SEQUENCEs where SEQUENCE_OWNER='SZZW' and CACHE_SIZE<>0;
 
 
@@ -2206,14 +2211,14 @@ select 'CREATE SEQUENCE '||SEQUENCE_OWNER||'.'||SEQUENCE_NAME||' MINVALUE '||to_
 uedbet
 
 ------------------------------------------------------------------------------------------------------
---Êı¾İÇåÀíÆ½Ì¨
+--æ•°æ®æ¸…ç†å¹³å°
 http://10.243.124.43:8888/shsnc/
 
 ----2015/10/13 8:53:00
-######Ğ£ÑéÁ½±ßÊı¾İÁ¿ÊÇ·ñÏàÍ¬######################
+######æ ¡éªŒä¸¤è¾¹æ•°æ®é‡æ˜¯å¦ç›¸åŒ######################
 
-++++Ô´¶Ë
-----Éú³ÉÊı¾İÁ¿¼ì²ésql
+++++æºç«¯
+----ç”Ÿæˆæ•°æ®é‡æ£€æŸ¥sql
 for i in `ls -lrt CHNAPPDB_20151008*log|awk '{print $9}'|sort`
 do
 cat $i|grep -v ORA-31655|grep exported|awk '{print "select '\''aaa'\'','\''"$4"'\'',count(*) from " $4";"}'|sort -rn >$i.sql
@@ -2225,7 +2230,7 @@ echo "exit">>$i
 done
 
 
-----nohup²éÑ¯Êı¾İÁ¿
+----nohupæŸ¥è¯¢æ•°æ®é‡
 for i in `ls -lrt CHNAPPDB_20151008*sql|awk '{print $9}'`
 do
 echo "nohup sqlplus -S '/as sysdba' @"$i" > "$i".out &"
@@ -2241,8 +2246,8 @@ nohup sqlplus -S '/as sysdba' @CHNAPPDB_20151008_135518905.log.sql > CHNAPPDB_20
 nohup sqlplus -S '/as sysdba' @CHNAPPDB_20151008_135225703.log.sql > CHNAPPDB_20151008_135225703.log.sql.out &
 nohup sqlplus -S '/as sysdba' @CHNAPPDB_20151008_134952268.log.sql > CHNAPPDB_20151008_134952268.log.sql.out &
 
-+++++ÀúÊ·¿â
-----Éú³ÉÊı¾İÁ¿¼ì²ésql
++++++å†å²åº“
+----ç”Ÿæˆæ•°æ®é‡æ£€æŸ¥sql
 for i in `ls -lrt WZPARTDB_20151008*log|awk '{print $9}'|sort`
 do
 cat $i|grep imported|awk '{print "select '\''aaa'\'','\''"$4"'\'',count(*) from " $4";"}'|sort -rn >$i.sql
@@ -2253,7 +2258,7 @@ do
 echo "exit">>$i
 done
 
-----nohup²éÑ¯Êı¾İÁ¿
+----nohupæŸ¥è¯¢æ•°æ®é‡
 for i in `ls -lrt WZPARTDB_20151008*sql|awk '{print $9}'`
 do
 echo "nohup sqlplus -S '/as sysdba' @"$i" > "$i".out &"
@@ -2271,13 +2276,13 @@ nohup sqlplus -S '/as sysdba' @WZPARTDB_20151008_135115070.log.sql > WZPARTDB_20
 nohup sqlplus -S '/as sysdba' @WZPARTDB_20151008_141427809.log.sql > WZPARTDB_20151008_141427809.log.sql.out &
 
 
-++++È¡³öÁ½¶ÎÊı¾İ¶Ô±È
+++++å–å‡ºä¸¤æ®µæ•°æ®å¯¹æ¯”
 cat  CHNAPPDB_20151008*out|grep aaa|sort -n -k3 > sou.txt
 cat WZPARTDB_20151008*out|grep aaa|sort -n -k3>tar.txt
 
 
 
-######Ğ£ÑéÁ½±ßÊı¾İÁ¿ÊÇ·ñÏàÍ¬#############
+######æ ¡éªŒä¸¤è¾¹æ•°æ®é‡æ˜¯å¦ç›¸åŒ#############
 
 
 cat sou.txt|awk '{print "truncate table " $2 ";" }'>trun.sql
@@ -2301,16 +2306,16 @@ TBS_DATA                  4301788       3783934        87.96        517854
 strace -to /tmp/strace2.out sqlplus / as sysdba
 
 
-####²¢ĞĞ
+####å¹¶è¡Œ
 desc v$px_session
 Name           
 ----------------
-SADDR           sessionµØÖ·
+SADDR           sessionåœ°å€
 SID             session identifer
 SERIAL#         session serial num
-QCSID           ²¢ĞĞĞ­µ÷½ø³ÌµÄsid
-QCSERIAL#       ²¢ĞĞĞ­µ÷½ø³ÌµÄsidµÄĞòÁĞºÅ
-QCINST_ID       ²¢ĞĞËùÔÚµÄinstance id
+QCSID           å¹¶è¡Œåè°ƒè¿›ç¨‹çš„sid
+QCSERIAL#       å¹¶è¡Œåè°ƒè¿›ç¨‹çš„sidçš„åºåˆ—å·
+QCINST_ID       å¹¶è¡Œæ‰€åœ¨çš„instance id
 SERVER_GROUP    logical group
 SERVER_SET     
 SERVER#         
@@ -2318,13 +2323,13 @@ DEGREE
 REQ_DEGREE     
 
 
---²éÑ¯²¢ĞĞ»á»°
+--æŸ¥è¯¢å¹¶è¡Œä¼šè¯
 select QCSID,count(*)-1  from  v$px_session group by QCSID;
 
---²éÕÒ²¢ĞĞÓï¾ä¸¸½ø³Ì
+--æŸ¥æ‰¾å¹¶è¡Œè¯­å¥çˆ¶è¿›ç¨‹
 select qcsid from v$px_session where sid in (1073,1022,873,919,1027,860);
 
---²¢ĞĞÓï¾ä
+--å¹¶è¡Œè¯­å¥
 select s.sql_id,p.sid from v$px_session  p,v$session s where s.sid=p.sid;
 
 
@@ -2368,7 +2373,7 @@ where a.sql_id=b.sql_id and b.SQL_TEXT like 'select sys_context%';
 
 select sql_id  from dba_hist_active_sess_history where sql_id='74d9jtg02kmt9';
 
-select * from v$sqlarea t where t.PARSING_SCHEMA_NAME in ('ÓÃ»§Ãû') order by t.LAST_ACTIVE_TIME desc
+select * from v$sqlarea t where t.PARSING_SCHEMA_NAME in ('ç”¨æˆ·å') order by t.LAST_ACTIVE_TIME desc
 
 select PARSING_SCHEMA_NAME from v$sqlarea  where SQL_ID='74d9jtg02kmt9';
 
@@ -2382,12 +2387,12 @@ select USER_ID from v$active_session_history  where sql_id='74d9jtg02kmt9';
 
 select SCHEMANAME from v$session where  PREV_SQL_ID='74d9jtg02kmt9';
    SELECT b.sid oracleID,
-           b.username µÇÂ¼OracleÓÃ»§Ãû,
+           b.username ç™»å½•Oracleç”¨æˆ·å,
            b.serial#,
-           spid ²Ù×÷ÏµÍ³ID,
+           spid æ“ä½œç³»ç»ŸID,
            paddr,
-           sql_text ÕıÔÚÖ´ĞĞµÄSQL,
-           b.machine ¼ÆËã»úÃû
+           sql_text æ­£åœ¨æ‰§è¡Œçš„SQL,
+           b.machine è®¡ç®—æœºå
     FROM v$process a, v$session b, v$sqlarea c
     WHERE a.addr = b.paddr
        AND b.sql_hash_value = c.hash_value
@@ -2447,17 +2452,17 @@ where sql_id in ('03k4xbh8huvxf',
 
 
 
-1.oswÊı¾İ
+1.oswæ•°æ®
 
-oswprvtnet ĞÄÌøÍøÊı¾İ
-oswmeminfo ÄÚ´æÊı¾İ
+oswprvtnet å¿ƒè·³ç½‘æ•°æ®
+oswmeminfo å†…å­˜æ•°æ®
 
 top
 
 vmstat
                s      p
-    ´úÂë¶Î    10M    20k
-1   Êı¾İ¿â¶Î 100M    100k 
+    ä»£ç æ®µ    10M    20k
+1   æ•°æ®åº“æ®µ 100M    100k 
 
 r cpu
 b si so pi po
@@ -2480,7 +2485,7 @@ cat  w4sd13pa_ps_15.08.26.1200.dat | sed -n '/Wed Aug 26 12:42:21 EAT 2015/,/Wed
 
 
 
-2.¼àÌıÊı¾İ
+2.ç›‘å¬æ•°æ®
 
 1.cat listener.log | sed -n '/26-AUG-2015 00:00:00/,/26-AUG-2015 23:00:01/p' > /tmp/22.osw/listener.26.log
 
@@ -2492,7 +2497,7 @@ sed -n '/21-SEP-2015 11:38/,/22-SEP-2015 16:38/'p listener_h7sd05de.log >/tmp/li
 cat   listener.26.log | sed 's/\*.*SERVICE_NAME=/ /g;s/).*HOST=/ /g;s/).*$//g' >nor.log 
 
 cat   listener.26.log | sed 's/\*.*SERVICE_NAME=/ /g;s/).*HOST=/ /g;s/).*$//g'   | awk ' { print  $3 $4}' | sort | uniq -c
---°´ÕÕÃëÊ±¼äÅÅĞò
+--æŒ‰ç…§ç§’æ—¶é—´æ’åº
 cat   /tmp/listener.26.log2 | sed 's/\*.*SERVICE_NAME=/ /g;s/).*HOST=/ /g;s/).*$//g'  | awk '{print $2}' | awk -F: '{print $1":"$2}' | sort  | uniq -c
 
 3.cat nor.log| sort  | uniq -c
